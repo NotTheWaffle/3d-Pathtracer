@@ -10,9 +10,15 @@ public class Point {
 		this.color = new Color((int)(Math.random()*16777216));
 		this.radius = radius;
 	}
+	public Point(Vec3 p, double radius, Color c){
+		this.point = p;
+		this.color = c;
+		this.radius = radius;
+	}
 	public void render(java.awt.image.WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
 		Vec3 p = cam.applyTo(this.point);
 		if (p.z >= 0) return;
+
 		
 		int screenX = (int)( focalLength * p.x / p.z) + cx;
 		int screenY = (int)(-focalLength * p.y / p.z) + cy;

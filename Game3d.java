@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -124,17 +125,19 @@ public class Game3d extends Game{
 		final int incr = 16;
 		for (int x = 0; x < width; x+=incr){
 			for (int y = 0; y < height; y+=incr){
-				double px = (double)(x-cx)/width;
-				double py = (double)(cy-y)/height;
+				double px = (double)(x-cx);
+				double py = (double)(cy-y);
 
-				Point p = new Point(cam.rot.transform(new Vec3(px, py, focalLength).sub(cam.translation).normalize()),.01);
+				Point p = new Point(cam.rot.transform(new Vec3(px, py, -focalLength).normalize()).add(cam.translation),.01,
+					new Color((256*x)/width, (256*y)/height, 0)
+				);
+				
 				p.render(raster, focalLength, cx, cy, zBuffer, cam);
 			}
 		}
-		new Point(new Vec3(0,0,0),.1).render(raster, focalLength, cx, cy, zBuffer, cam);
 
 		g2d.drawImage(image, 0, 0, null);
-		
+		g2d.drawString(cam.translation.toString(), 0, 60);
 		long renderTime = System.nanoTime()-renderStart;
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
 		g2d.drawString("Logic  (ms):"+logicTime/1_000_000.0,0,40);
@@ -156,7 +159,7 @@ public class Game3d extends Game{
 				int py = cy-y;
 
 				
-				Vec3 vector = cam.inv.transform(new Vec3(px, py, focalLength)).normalize();
+				Vec3 vector = cam.rot.transform(new Vec3(px, py, focalLength).normalize()).add(cam.translation);
 				Vec3 intersect = null;
 				for (Triangle tri : triangles){
 					Vec3 inter = tri.getIntersection(vector, origin);
