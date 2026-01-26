@@ -36,6 +36,9 @@ public class Transform {
 		Vec3 fixed = rot.transform(new Vec3(x, y, z));
 		translation = translation.add(fixed);
 	}
+	public void translate(Vec3 vec){
+		translation = translation.add(vec);
+	}
 	
 	public static Mat3 rotationX(double pitch) {
 		Mat3 m = Mat3.identity();
@@ -63,7 +66,8 @@ public class Transform {
 		m.m[4] =  Math.cos(roll);
 		return m;
 	}
+	@Override
 	public String toString(){
-		return "("+translation.x+", "+translation.y+", "+translation.z+")";
+		return translation.toString()+"\n"+rot.toString();
 	}
 }

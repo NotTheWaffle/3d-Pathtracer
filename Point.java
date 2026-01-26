@@ -17,14 +17,14 @@ public class Point {
 	}
 	public void render(java.awt.image.WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
 		Vec3 p = cam.applyTo(this.point);
-		if (p.z >= 0) return;
+		if (p.z < 0) return;
 
 		
 		int screenX = (int)( focalLength * p.x / p.z) + cx;
 		int screenY = (int)(-focalLength * p.y / p.z) + cy;
 
 
-		int radius = Math.max(1,(int) (focalLength * (this.radius / -p.z)));
+		int radius = Math.max(1,(int) (focalLength * (this.radius / p.z)));
 
 		int minX = Math.max(0, screenX-radius);
 		int maxX = Math.min(zBuffer.length - 1, screenX+radius);
@@ -43,8 +43,8 @@ public class Point {
 				int dy = y-screenY;
 				if (dx * dx + dy * dy < radius * radius) {
 
-					if (iz < zBuffer[x][y]) {
-						zBuffer[x][y] = iz;
+					if (p.z < zBuffer[x][y]) {
+						zBuffer[x][y] = p.z;
 						raster.setPixel(x, y, rgb);
 					}
 				}

@@ -22,7 +22,7 @@ public class Input {
 	public double mouseWheel;
 
 	public boolean[] keys;
-	
+
 	public Input(Game game) {
 		reset();
 	}

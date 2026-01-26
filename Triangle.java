@@ -27,8 +27,8 @@ public final class Triangle implements Serializable{
 		return avg;
 	}
 	public void recolor(Vec3 light){
-		double coeff = light.dot(normal);
-		if (coeff < 0.2) coeff = 0.2;
+		double coeff = -light.dot(normal);
+		if (coeff < 0) coeff = 0;
 		this.color = new Color(
 			(int) (underlyingColor.getRed() * coeff),
 			(int) (underlyingColor.getGreen() * coeff),
@@ -45,7 +45,7 @@ public final class Triangle implements Serializable{
 		Vec3 p2 = cam.applyTo(this.p2);
 		Vec3 p3 = cam.applyTo(this.p3);
 		
-		if (p1.z > 0 || p2.z > 0 || p3.z > 0) return;
+		if (p1.z < 0 || p2.z < 0 || p3.z < 0) return;
 
 		double iz1 = 1.0 / p1.z;
 		double iz2 = 1.0 / p2.z;
@@ -92,10 +92,10 @@ public final class Triangle implements Serializable{
 
 				if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
 					double iz = w1 * iz1 + w2 * iz2 + w3 * iz3;
-
-					if (iz < zBuffer[x][y]) {
+					double z = 1/iz;
+					if (z < zBuffer[x][y]) {
 						
-						zBuffer[x][y] = iz;
+						zBuffer[x][y] = z;
 						raster.setPixel(x, y, rgb);
 					}
 				}

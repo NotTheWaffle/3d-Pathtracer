@@ -12,9 +12,9 @@ public class RasterizedGame extends Game{
 	public final double speed = .02;
 	public final double rotSpeed = .03;
 
-	private final Vec3 light;
+	private Vec3 light;
 
-	private Transform cam;
+	private final Transform cam;
 
 	private final Environment env;
 	
@@ -23,13 +23,13 @@ public class RasterizedGame extends Game{
 
 	public RasterizedGame(int width, int height, double fov, Environment env){
 		super(width, height);
-		this.light = new Vec3(0, 1, -1).normalize();
+		this.light = new Vec3(0, 1, 1).normalize();
 		
 		this.env = env;
 		
 		cam = new Transform();
-		cam.rotateZ(Math.PI);
-		cam.translate(0, 0, 1);
+		cam.translate(cam.getForwardVector().mul(-1));
+
 		
 		this.focalLength = (double) height / (2 * Math.tan(fov/2));
 		zBuffer = new double[width][height];
@@ -43,12 +43,13 @@ public class RasterizedGame extends Game{
 	@Override
 	public void tick(){
 		long start = System.nanoTime();
-		if (input.keys['W']) 				cam.translate(0, 0, -speed);
-		if (input.keys['A']) 				cam.translate(speed, 0, 0);
-		if (input.keys['S']) 				cam.translate(0, 0, speed);
-		if (input.keys['D']) 				cam.translate(-speed, 0, 0);
-		if (input.keys[' ']) 				cam.translate(0, -speed, 0);
-		if (input.keys[Input.SHIFT]) 		cam.translate(0, speed, 0);
+
+		if (input.keys['W']) 				cam.translate(0, 0, speed);
+		if (input.keys['A']) 				cam.translate(-speed, 0, 0);
+		if (input.keys['S']) 				cam.translate(0, 0, -speed);
+		if (input.keys['D']) 				cam.translate(speed, 0, 0);
+		if (input.keys[' ']) 				cam.translate(0, speed, 0);
+		if (input.keys[Input.SHIFT]) 		cam.translate(0, -speed, 0);
 	
 		if (input.keys[Input.UP_ARROW]) 	cam.rotateX( rotSpeed);
 		if (input.keys[Input.DOWN_ARROW]) 	cam.rotateX(-rotSpeed);
@@ -56,6 +57,7 @@ public class RasterizedGame extends Game{
 		if (input.keys[Input.RIGHT_ARROW]) 	cam.rotateY(-rotSpeed);
 		if (input.keys['Q']) 				cam.rotateZ(-rotSpeed);
 		if (input.keys['E']) 				cam.rotateZ( rotSpeed);
+
 		logicTime = System.nanoTime()-start;
 	}
 
@@ -91,23 +93,31 @@ public class RasterizedGame extends Game{
 		Vec3 origin = cam.translation;
 		Vec3 vector = cam.getForwardVector().normalize();
 		
-		Vec3 intersect = null;
+		Vec3 intersection = null;
 		for (Triangle tri : env.mesh.triangles()){
-			Vec3 inter = tri.getIntersection(vector, origin);
-			if (inter == null) continue;
-			if (intersect == null || origin.dist(intersect) > origin.dist(inter)){
-				intersect = inter;
+			Vec3 localIntersection = tri.getIntersection(vector, origin);
+			if (localIntersection == null) continue;
+			if (intersection == null || origin.dist(intersection) > origin.dist(localIntersection)){
+				intersection = localIntersection;
 			}
 		}
-
 		for (Point p : env.points){
 			p.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
+		new Point(new Vec3(0, 0, 0), .01).render(raster, focalLength, cx, cy, zBuffer, cam);
 		
 		g2d.drawImage(image, 0, 0, null);
-		g2d.drawString(cam.translation.toString(), 0, 60);
 		long renderTime = System.nanoTime()-renderStart;
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
 		g2d.drawString("Logic  (ms):"+logicTime/1_000_000.0,0,40);
+		
+		g2d.drawString("pos + forwardvec = ",0, 60);
+		g2d.drawString(cam.translation.toString()+"+"+cam.getForwardVector().toString()+"="+cam.translation.add(cam.getForwardVector()).toString(), 0, 80);
+		g2d.drawString("  "+cam.applyTo(cam.translation.add(cam.getForwardVector())).toString(), 0, 100);
+		g2d.drawString(new Vec3(0, 0, 0).toString(), 0, 120);
+		g2d.drawString("  "+cam.applyTo(new Vec3(0, 0, 0)).toString(), 0, 140);
+		g2d.drawString("Cam Pos:"+cam.translation.toString(), 0, 200);
+		g2d.drawString("Cam Rot:"+cam.rot.toString(), 0, 220);
+		g2d.drawString("Cam Inv:"+cam.inv.toString(), 0, 240);
 	}
 }

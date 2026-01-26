@@ -69,4 +69,9 @@ public class Mat3 {
 		Mat3 mat = (Mat3) o;
 		return Arrays.equals(mat.m, m);
 	}
+	@Override
+	public String toString(){
+		String s = String.format("%2.1f, %2.1f, %2.1f    \n%2.1f, %2.1f, %2.1f    \n%2.1f, %2.1f, %2.1f", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+		return s;
+	}
 }
