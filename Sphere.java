@@ -1,29 +1,32 @@
 
-import Math.Vec3;
 import java.awt.Color;
-import java.awt.image.WritableRaster;
 
-public class Point {
+import Math.Vec3;
+
+public class Sphere {
 	public final Vec3 point;
 	public final Color color;
-	public final int radius;
-	public Point(Vec3 p, int radius){
+	public final double radius;
+	public Sphere(Vec3 p, double radius){
 		this.point = p;
 		this.color = new Color((int)(Math.random()*16777216));
 		this.radius = radius;
 	}
-	public Point(Vec3 p, int radius, Color c){
+	public Sphere(Vec3 p, double radius, Color c){
 		this.point = p;
 		this.color = c;
 		this.radius = radius;
 	}
-	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
+	public void render(java.awt.image.WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
 		Vec3 p = cam.applyTo(this.point);
 		if (p.z < 0) return;
 
 		
 		int screenX = (int)( focalLength * p.x / p.z) + cx;
 		int screenY = (int)(-focalLength * p.y / p.z) + cy;
+
+
+		int radius = Math.max(1,(int) (focalLength * (this.radius / p.z)));
 
 		int minX = Math.max(0, screenX-radius);
 		int maxX = Math.min(zBuffer.length - 1, screenX+radius);

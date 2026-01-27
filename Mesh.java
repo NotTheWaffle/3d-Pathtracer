@@ -1,4 +1,4 @@
 
-import java.io.Serializable;
+import Math.Vec3;
 
-public record Mesh(Vec3[] points, Triangle[] triangles) implements Serializable {}
+public record Mesh(Vec3[] points, Triangle[] triangles){}

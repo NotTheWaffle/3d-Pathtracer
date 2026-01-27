@@ -1,3 +1,6 @@
+import Game.Game;
+import Game.Input;
+import Math.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -97,10 +100,10 @@ public class RaytracedGame extends Game{
 				intersection = localIntersection;
 			}
 		}
-		for (Point p : env.lights){
+		for (Sphere p : env.lights){
 			p.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
-		new Point(new Vec3(0, 0, 0), .01).render(raster, focalLength, cx, cy, zBuffer, cam);
+		new Sphere(new Vec3(0, 0, 0), .01).render(raster, focalLength, cx, cy, zBuffer, cam);
 		
 		g2d.drawImage(image, 0, 0, null);
 	
@@ -124,10 +127,10 @@ public class RaytracedGame extends Game{
 			clearZBuffer();
 		
 			env.points.clear();
-			List<Point> points = env.points;
+			List<Sphere> points = env.points;
 			final int incr = 4;
 			
-			points.add(new Point(cam.translation, .01, Color.white));
+			points.add(new Sphere(cam.translation, .01, Color.white));
 
 			Vec3 origin = cam.translation;
 			for (int x = 0; x < width; x+=incr){
@@ -137,7 +140,7 @@ public class RaytracedGame extends Game{
 
 					Vec3 vector = cam.rot.transform(new Vec3(px, py, focalLength).normalize());
 
-					Point p = new Point(vector.add(origin),.01,
+					Sphere p = new Sphere(vector.add(origin),.01,
 						new Color((256*x)/width, (256*y)/height, 0)
 					);
 					points.add(p);

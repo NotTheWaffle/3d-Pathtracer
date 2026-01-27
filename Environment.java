@@ -1,4 +1,5 @@
 
+import Math.Vec3;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,8 +8,8 @@ import java.util.List;
 
 public class Environment{
 	public final Mesh mesh;
-	public final List<Point> points;
-	public final List<Point> lights;
+	public final List<Sphere> points;
+	public final List<Sphere> lights;
 	public Environment(String filename){
 		this.mesh = loadMesh("Models/"+filename+".obj").mesh;
 		

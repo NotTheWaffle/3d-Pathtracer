@@ -1,3 +1,6 @@
+import Game.Game;
+import Game.Input;
+import Math.Vec3;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -97,10 +100,10 @@ public class RasterizedGame extends Game{
 				intersection = localIntersection;
 			}
 		}
-		for (Point p : env.points){
+		for (Sphere p : env.points){
 			p.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
-		new Point(new Vec3(0, 0, 0), .01).render(raster, focalLength, cx, cy, zBuffer, cam);
+		new Sphere(new Vec3(0, 0, 0), .01).render(raster, focalLength, cx, cy, zBuffer, cam);
 		
 		g2d.drawImage(image, 0, 0, null);
 		long renderTime = System.nanoTime()-renderStart;

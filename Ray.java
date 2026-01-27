@@ -2,13 +2,15 @@
 
 import java.util.Random;
 
+import Math.Vec3;
+
 public final class Ray {
 	private Ray(){}
 	public static int[] getColor(Vec3 origin, Vec3 direction, Environment env, int depth){
 		int[] color = {0, 0, 0, 255};
 		if (depth == 0) {color[0] = color[1] = color[2] = 25; return color;}
 		Intersection intersection = null;
-		for (Point p : env.lights){
+		for (Sphere p : env.lights){
 			Vec3 localIntersection = p.getIntersection(origin, direction);
 			if (localIntersection == null) continue;
 			if (intersection == null || origin.dist(intersection.pos) > origin.dist(localIntersection)){

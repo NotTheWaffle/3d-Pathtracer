@@ -1,3 +1,5 @@
+import Math.Vec3;
+
 public class Intersection {
 	public final Material mat;
 	public final Vec3 pos;

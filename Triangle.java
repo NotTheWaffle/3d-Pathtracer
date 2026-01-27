@@ -2,6 +2,8 @@
 import java.awt.Color;
 import java.io.Serializable;
 
+import Math.Vec3;
+
 public final class Triangle implements Serializable{
 	public final Vec3 p1;
 	public final Vec3 p2;

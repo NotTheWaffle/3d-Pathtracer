@@ -1,3 +1,4 @@
+package Game;
 public class Input {
 
 	public static final int MOUSE_LEFT = 1;

@@ -1,11 +1,14 @@
 
+import Game.Game;
+import Game.Window;
+import Math.Vec3;
 import java.util.concurrent.locks.LockSupport;
 
 
 public class Main {
 	public static void main(String[] args){
 		Environment env = new Environment("cube");
-		env.lights.add(new Point(new Vec3(1, 0, 1), .5));
+		env.lights.add(new Sphere(new Vec3(1, 0, 1), .5));
 		System.out.println(runGame(new RaytracedGame(512, 512, Math.PI/2, env), 30).isVirtual());
 	}
 	public static Thread runGame(final Game game, final double fps){
