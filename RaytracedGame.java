@@ -1,12 +1,14 @@
 import Game.Game;
 import Game.Input;
 import Math.*;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Random;
+import javax.imageio.ImageIO;
 
 public class RaytracedGame extends Game{
 
@@ -18,17 +20,23 @@ public class RaytracedGame extends Game{
 	public final double rotSpeed = .03;
 
 	private final Transform cam;
-
 	private final Environment env;
+
+	private final int pixelSize;
+	private final int screenWidth;
+	private final int screenHeight;
 	
 	public static long logicTime;
 
 	int cx = width / 2;
 	int cy = height / 2;
 
-	public RaytracedGame(int width, int height, double fov, Environment env){
+	public RaytracedGame(int width, int height, int pixelSize, double fov, Environment env){
 		super(width, height);
-		
+		this.pixelSize = pixelSize;
+		screenHeight = height/pixelSize;
+		screenWidth = width/pixelSize;
+
 		this.env = env;
 		
 		cam = new Transform();
@@ -37,6 +45,11 @@ public class RaytracedGame extends Game{
 		
 		this.focalLength = (double) height / (2 * Math.tan(fov/2));
 		zBuffer = new double[width][height];
+		pixelBuffer = new Pixel[screenWidth][screenHeight];
+		raytrace = true;
+		resetPixelBuffer();
+		raytrace = false;
+		System.out.println(pixelBuffer[0][0]);
 	}
 
 	@Override
@@ -48,18 +61,22 @@ public class RaytracedGame extends Game{
 	public void tick(){
 		long start = System.nanoTime();
 
-		if (input.keys['W']) 				{render = null; cam.translate(0, 0, speed);}
-		if (input.keys['A']) 				{render = null; cam.translate(-speed, 0, 0);}
-		if (input.keys['S']) 				{render = null; cam.translate(0, 0, -speed);}
-		if (input.keys['D']) 				{render = null; cam.translate(speed, 0, 0);}
-		if (input.keys[' ']) 				{render = null; cam.translate(0, speed, 0);}
-		if (input.keys[Input.SHIFT]) 		{render = null; cam.translate(0, -speed, 0);}
-		if (input.keys[Input.UP_ARROW]) 	{render = null; cam.rotateX( rotSpeed);}
-		if (input.keys[Input.DOWN_ARROW]) 	{render = null; cam.rotateX(-rotSpeed);}
-		if (input.keys[Input.LEFT_ARROW]) 	{render = null; cam.rotateY( rotSpeed);}
-		if (input.keys[Input.RIGHT_ARROW]) 	{render = null; cam.rotateY(-rotSpeed);}
-		if (input.keys['Q']) 				{render = null; cam.rotateZ(-rotSpeed);}
-		if (input.keys['E']) 				{render = null; cam.rotateZ( rotSpeed);}
+		if (input.keys['W']) 				{resetPixelBuffer(); cam.translate(0, 0, speed);}
+		if (input.keys['A']) 				{resetPixelBuffer(); cam.translate(-speed, 0, 0);}
+		if (input.keys['S']) 				{resetPixelBuffer(); cam.translate(0, 0, -speed);}
+		if (input.keys['D']) 				{resetPixelBuffer(); cam.translate(speed, 0, 0);}
+		if (input.keys[' ']) 				{resetPixelBuffer(); cam.translate(0, speed, 0);}
+		if (input.keys[Input.SHIFT]) 		{resetPixelBuffer(); cam.translate(0, -speed, 0);}
+
+		if (input.keys[Input.UP_ARROW]) 	{resetPixelBuffer(); cam.rotateX( rotSpeed);}
+		if (input.keys[Input.DOWN_ARROW]) 	{resetPixelBuffer(); cam.rotateX(-rotSpeed);}
+		if (input.keys[Input.LEFT_ARROW]) 	{resetPixelBuffer(); cam.rotateY( rotSpeed);}
+		if (input.keys[Input.RIGHT_ARROW]) 	{resetPixelBuffer(); cam.rotateY(-rotSpeed);}
+		if (input.keys['Q']) 				{resetPixelBuffer(); cam.rotateZ(-rotSpeed);}
+		if (input.keys['E']) 				{resetPixelBuffer(); cam.rotateZ( rotSpeed);}
+
+		if (input.keys['['])	{raytrace = true; resetPixelBuffer();}
+		if (input.keys[']'])	raytrace = false;
 
 		logicTime = System.nanoTime()-start;
 	}
@@ -76,68 +93,90 @@ public class RaytracedGame extends Game{
 			Arrays.fill(zBuffer[x], Double.POSITIVE_INFINITY);
 		}
 	}
+
+	private void resetPixelBuffer(){
+		if (!raytrace) return;
+		for (Pixel[] row : pixelBuffer) {
+			for (int x = 0; x < row.length; x++) {
+				row[x] = new Pixel();
+			}
+		}
+	}
+
 	private void renderRasterized(Graphics2D g2d){
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		WritableRaster raster = image.getRaster();
 		Vec3 light = cam.getForwardVector();
 		clearZBuffer();
-		for (Triangle triangle : env.mesh.triangles){
-			triangle.recolor(light);
-			triangle.render(raster, focalLength, cx, cy, zBuffer, cam);
+		
+		for (PhysicalObject p : env.physicalObjects){
+			if (p instanceof Mesh mesh){
+				for (Triangle triangle : mesh.triangles){
+					triangle.recolor(light);
+				}
+			}
 		}
 		
-		Vec3 origin = cam.translation;
-		Vec3 vector = cam.getForwardVector().normalize();
-		
-		for (PhysicalObject p : env.lights){
-			p.render(raster, focalLength, cx, cy, zBuffer, cam);
+		for (PhysicalObject physicalObjects : env.physicalObjects){
+			physicalObjects.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
-		new Point(new Vec3(0, 0, 0), 1).render(raster, focalLength, cx, cy, zBuffer, cam);
-		
+		for (Point point : env.points){
+			point.render(raster, focalLength, cx, cy, zBuffer, cam);
+		}
 		g2d.drawImage(image, 0, 0, null);
 	
-		g2d.drawString(Math.random()+"", 0, 100);
-		g2d.drawString("Cam Pos:"+cam.translation.toString(), 0, 60);
-		g2d.drawString("Cam Rot:"+cam.rot.toString(), 0, 80);
+		g2d.drawString(Math.random()+"", 0, 20);
+		g2d.drawString(cam.translation.toString(), 0, 40);
 	}
 	public static BufferedImage render = null;
+	public static boolean raytrace = false;
+	public static Pixel[][] pixelBuffer;
 	@Override
 	public void updateFrame(Graphics2D g2d){
-		
-		if (input.keys[0x11]) {
-			if (render != null) {
-				g2d.drawImage(render, 0, 0, null);
-				return;
+		if (input.keys['K'] && render != null){
+			try {
+				File outputfile = new File("saved.png");
+				ImageIO.write(render, "png", outputfile);
+			} catch (IOException e) {
 			}
+		}
+		if (raytrace || input.keys['G']){
+			
 			long renderStart = System.nanoTime();
 			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 			WritableRaster raster = image.getRaster();
 
 			clearZBuffer();
 		
-			env.points.clear();
-			List<Point> points = env.points;
-			final int incr = 2;
 			
-			points.add(new Point(cam.translation, 1, Color.white));
-
+			Random random = new Random();
 			Vec3 origin = cam.translation;
-			for (int x = 0; x < width; x+=incr){
-				for (int y = 0; y < height; y+=incr){
+			for (int x = 0; x < width; x+=pixelSize){
+				for (int y = 0; y < height; y+=pixelSize){
 					double px = (double)(x-cx);
 					double py = (double)(cy-y);
 
 					Vec3 vector = cam.rot.transform(new Vec3(px, py, focalLength).normalize());
-
-					Point p = new Point(vector.add(origin),1,
-						new Color((256*x)/width, (256*y)/height, 0)
-					);
-					points.add(p);
 					
-					int[] color = Ray.getColor(origin, vector, env, 3);
-					for (int dx = 0; dx < incr; dx++){
-						for (int dy = 0; dy < incr; dy++){
-							raster.setPixel(x+dx, y+dy, color);
+					
+					double[] color = new double[3];
+					int resolution = 1;
+					for (int i = 0; i < resolution; i++){
+						double[] col = Ray.getColor(origin, vector, env, 4, random);
+						color[0] += col[0];
+						color[1] += col[1];
+						color[2] += col[2];
+					}
+					color[0] /= resolution;
+					color[1] /= resolution;
+					color[2] /= resolution;
+					pixelBuffer[y/pixelSize][x/pixelSize].addSample(color, 1);
+					color = pixelBuffer[y/pixelSize][x/pixelSize].color;
+
+					int[] colori = {(int)(color[0]*255), (int)(color[1]*255), (int)(color[2]*255), 255};
+					for (int dx = 0; dx < pixelSize; dx++){
+						for (int dy = 0; dy < pixelSize; dy++){
+							raster.setPixel(x+dx, y+dy, colori);
 						}
 					}
 				}

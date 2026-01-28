@@ -4,21 +4,21 @@ import java.awt.Color;
 import java.awt.image.WritableRaster;
 
 public class Point {
-	public final Vec3 point;
+	public Vec3 pos;
 	public final Color color;
 	public final int radius;
 	public Point(Vec3 p, int radius){
-		this.point = p;
+		this.pos = p;
 		this.color = new Color((int)(Math.random()*16777216));
 		this.radius = radius;
 	}
 	public Point(Vec3 p, int radius, Color c){
-		this.point = p;
+		this.pos = p;
 		this.color = c;
 		this.radius = radius;
 	}
 	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
-		Vec3 p = cam.applyTo(this.point);
+		Vec3 p = cam.applyTo(this.pos);
 		if (p.z < 0) return;
 
 		
@@ -51,7 +51,7 @@ public class Point {
 		}
 	}
 	public Vec3 getIntersection(Vec3 rayOrigin, Vec3 rayVector){
-		Vec3 l = rayOrigin.sub(point);
+		Vec3 l = rayOrigin.sub(pos);
 		
 		double a = rayVector.dot(rayVector);
 		double b = 2 * rayVector.dot(l);

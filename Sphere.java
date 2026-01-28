@@ -1,25 +1,24 @@
 
 import Math.Vec3;
 import java.awt.Color;
+import java.awt.image.WritableRaster;
 
 public class Sphere extends PhysicalObject{
 	public final Vec3 point;
-	public final Color color;
 	public final double radius;
 	public Sphere(Vec3 p, double radius, Material material){
 		this(p, radius, new Color((int)(Math.random()*16777216)), material);
 	}
 	public Sphere(Vec3 p, double radius, Color c, Material material){
-		super(Material.LIGHT);
+		super(material, c);
 		this.point = p;
-		this.color = c;
 		this.radius = radius;
 	}
 	@Override
-	public void render(java.awt.image.WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
+	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
 		Vec3 p = cam.applyTo(this.point);
 		if (p.z < 0) return;
-
+		
 		
 		int screenX = (int)( focalLength * p.x / p.z) + cx;
 		int screenY = (int)(-focalLength * p.y / p.z) + cy;
@@ -31,13 +30,18 @@ public class Sphere extends PhysicalObject{
 		int maxX = Math.min(zBuffer.length - 1, screenX+radius);
 		int minY = Math.max(0, screenY-radius);
 		int maxY = Math.min(zBuffer[0].length - 1, screenY+radius);
+		Color color = new Color(
+			this.color.getRed()+emittedColor.getRed(),
+			this.color.getGreen()+emittedColor.getGreen(),
+			this.color.getBlue()+emittedColor.getBlue()
+		);
 		int[] rgb = {
 			color.getRed(),
 			color.getGreen(),
 			color.getBlue(),
 			255
 		};
-		double iz = 1/p.z;
+		
 		for (int y = minY; y <= maxY; y++) {
 			for (int x = minX; x <= maxX; x++) {
 				int dx = x-screenX;
@@ -56,7 +60,7 @@ public class Sphere extends PhysicalObject{
 	public Intersection getIntersection(Vec3 rayOrigin, Vec3 rayVector){
 		Vec3 l = rayOrigin.sub(point);
 		
-		double a = rayVector.dot(rayVector);
+		double a = 1;
 		double b = 2 * rayVector.dot(l);
 		double c = l.dot(l) - radius*radius;
 

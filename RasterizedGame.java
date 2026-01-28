@@ -15,8 +15,6 @@ public class RasterizedGame extends Game{
 	public final double speed = .02;
 	public final double rotSpeed = .03;
 
-	private Vec3 light;
-
 	private final Transform cam;
 
 	private final Environment env;
@@ -26,7 +24,6 @@ public class RasterizedGame extends Game{
 
 	public RasterizedGame(int width, int height, double fov, Environment env){
 		super(width, height);
-		this.light = new Vec3(0, 1, 1).normalize();
 		
 		this.env = env;
 		
@@ -84,13 +81,20 @@ public class RasterizedGame extends Game{
 		WritableRaster raster = image.getRaster();
 		Vec3 light = cam.getForwardVector();
 		clearZBuffer();
-		for (Triangle triangle : env.mesh.triangles){
-			triangle.recolor(light);
-			triangle.render(raster, focalLength, cx, cy, zBuffer, cam);
+		
+		for (PhysicalObject p : env.physicalObjects){
+			if (p instanceof Mesh mesh){
+				for (Triangle triangle : mesh.triangles){
+					triangle.recolor(light);
+				}
+			}
 		}
-
-		for (Point p : env.points){
-			p.render(raster, focalLength, cx, cy, zBuffer, cam);
+		
+		for (PhysicalObject physicalObjects : env.physicalObjects){
+			physicalObjects.render(raster, focalLength, cx, cy, zBuffer, cam);
+		}
+		for (Point point : env.points){
+			point.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
 		new Point(new Vec3(0, 0, 0), 1).render(raster, focalLength, cx, cy, zBuffer, cam);
 		

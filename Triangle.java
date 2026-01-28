@@ -3,44 +3,46 @@ import Math.Vec3;
 import java.awt.Color;
 
 public final class Triangle extends PhysicalObject{
-	public final Vec3 p1;
-	public final Vec3 p2;
-	public final Vec3 p3;
+	public final Point p1;
+	public final Point p2;
+	public final Point p3;
 	private final Vec3 normal;
-	public final Color underlyingColor;
-	public Color color;
+	public Color raytracedColor;
 	
-	public Triangle(Vec3 p1, Vec3 p2, Vec3 p3, Material material){
-		super(material);
+	public Triangle(Point p1, Point p2, Point p3, Material material, Color color){
+		super(material, color);
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
 		this.normal = normal();
-		this.underlyingColor = Color.white;
 		recolor(new Vec3(0, 1, 0).normalize());
 	}
-	public Triangle(int i1, int i2, int i3, Vec3[] points, Material material){
-		this(points[i1], points[i2], points[i3], material);
+	public Triangle(int i1, int i2, int i3, Point[] points, Material material){
+		this(points[i1], points[i2], points[i3], material, Color.white);
+	}
+	public Triangle(int i1, int i2, int i3, Point[] points, Material material, Color color){
+		this(points[i1], points[i2], points[i3], material, color);
 	}
 	
 	public void recolor(Vec3 light){
 		double coeff = -light.dot(normal);
 		if (coeff < 0) coeff = 0;
-		this.color = new Color(
-			(int) (underlyingColor.getRed() * coeff),
-			(int) (underlyingColor.getGreen() * coeff),
-			(int) (underlyingColor.getBlue() * coeff)
+		this.raytracedColor = new Color(
+			(int) (color.getRed() * coeff),
+			(int) (color.getGreen() * coeff),
+			(int) (color.getBlue() * coeff)
 		);
 	}
 	public Vec3 normal() {
-		Vec3 edge1 = p2.sub(p1);
-		Vec3 edge2 = p3.sub(p1);
+		Vec3 edge1 = p2.pos.sub(p1.pos);
+		Vec3 edge2 = p3.pos.sub(p1.pos);
 		return edge1.cross(edge2).normalize();
 	}
+	@Override
 	public void render(java.awt.image.WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
-		Vec3 p1 = cam.applyTo(this.p1);
-		Vec3 p2 = cam.applyTo(this.p2);
-		Vec3 p3 = cam.applyTo(this.p3);
+		Vec3 p1 = cam.applyTo(this.p1.pos);
+		Vec3 p2 = cam.applyTo(this.p2.pos);
+		Vec3 p3 = cam.applyTo(this.p3.pos);
 		
 		if (p1.z < 0 || p2.z < 0 || p3.z < 0) return;
 
@@ -102,12 +104,13 @@ public final class Triangle extends PhysicalObject{
 	private static double edge(int x1, int y1, int x2, int y2, int x, int y) {
 		return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);
 	}
+	@Override
 	public Intersection getIntersection(Vec3 rayOrigin, Vec3 rayVector){
 
 		final double EPSILON = 1e-4;
 
-		Vec3 edge1 = p2.sub(p1);
-		Vec3 edge2 = p3.sub(p1);
+		Vec3 edge1 = p2.pos.sub(p1.pos);
+		Vec3 edge2 = p3.pos.sub(p1.pos);
 		Vec3 h = rayVector.cross(edge2);
 		
 
@@ -118,7 +121,7 @@ public final class Triangle extends PhysicalObject{
 		}
 
 		double f = 1.0 / a;
-		Vec3 s = rayOrigin.sub(p1);
+		Vec3 s = rayOrigin.sub(p1.pos);
 		double u = f * s.dot(h);
 
 		if (u < 0.0 || u > 1.0) {

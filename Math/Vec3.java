@@ -3,7 +3,7 @@ package Math;
 import java.io.Serializable;
 
 public class Vec3 implements Serializable{
-	public double x, y, z;
+	public final double x, y, z;
 
 	public Vec3(double x, double y, double z) {
 		this.x = x;
