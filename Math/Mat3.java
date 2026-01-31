@@ -14,15 +14,9 @@ public class Mat3 {
 	public Mat3(double d00, double d01, double d02,
 				double d10, double d11, double d12,
 				double d20, double d21, double d22 ){
-		m00 = d00;
-		m01 = d01;
-		m02 = d02;
-		m10 = d10;
-		m11 = d11;
-		m12 = d12;
-		m20 = d20;
-		m21 = d21;
-		m22 = d22;
+		m00 = d00; m01 = d01; m02 = d02;
+		m10 = d10; m11 = d11; m12 = d12;
+		m20 = d20; m21 = d21; m22 = d22;
 	}
 	public static Mat3 identity() {
 		return new Mat3(
@@ -77,18 +71,48 @@ public class Mat3 {
 	}
 	
 	@Override
-	public int hashCode(){
-		System.out.println("called hashcode on mat3 (WEIRD)");
-		return 0;
+	public int hashCode() {
+		int result = 1;
+		long bits;
+
+		bits = Double.doubleToLongBits(m00);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m01);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m02);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+
+		bits = Double.doubleToLongBits(m10);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m11);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m12);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+
+		bits = Double.doubleToLongBits(m20);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m21);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+		bits = Double.doubleToLongBits(m22);
+		result = 31 * result + (int) (bits ^ (bits >>> 32));
+
+		return result;
 	}
 	@Override
-	public boolean equals(Object o){
-		if (o == null || !(o instanceof Mat3)){
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Mat3)) {
 			return false;
 		}
-		Mat3 mat = (Mat3) o;
-		System.out.println("BAD");
-		return false;
+
+		Mat3 mat = (Mat3) obj;
+
+		return
+			m00 == mat.m00 && m01 == mat.m01 && m02 == mat.m02 &&
+			m10 == mat.m10 && m11 == mat.m11 && m12 == mat.m12 &&
+			m20 == mat.m20 && m21 == mat.m21 && m22 == mat.m22;
 	}
 	@Override
 	public String toString(){

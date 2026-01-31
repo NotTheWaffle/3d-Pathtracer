@@ -32,25 +32,7 @@ public final class Ray {
 			Vec3 nextDirection;
 			if (collisionObject.transparency > 0){
 				
-				double ior = 1;
-				double ior2 = 1.5;
-				double eta = ior/ior2;
-				double cosAngleIn = -direction.dot(intersection.normal);
-				Vec3 n = intersection.normal;
-				if (cosAngleIn < 0) {
-					// ray is inside the material
-					n = n.mul(-1);
-					cosAngleIn = -direction.dot(n);
-					eta = ior2 / ior;
-				}
-				double sinSqrAngleOfRefraction = eta * eta * (1 - cosAngleIn * cosAngleIn);
-				if (sinSqrAngleOfRefraction > 1){
-					break;
-				}
-				nextDirection = direction.mul(eta).add(intersection.normal.mul(eta * cosAngleIn - Math.sqrt(1 - sinSqrAngleOfRefraction)));
-				origin = intersection.pos.add(direction.mul(EPSILON));
 				
-				direction = nextDirection;
 			} else {
 				nextDirection = direction.sub(intersection.normal.mul(2 * direction.dot(intersection.normal))).normalize();
 				double iv = collisionObject.specularity;
@@ -62,7 +44,7 @@ public final class Ray {
 				).normalize();
 				origin = intersection.pos;
 				direction = nextDirection;
-			}
+			
 			
 			//calculate colors
 			Color emittedColor = collisionObject.emittedColor;
@@ -85,6 +67,7 @@ public final class Ray {
 			rayColor[0] *= c[0];
 			rayColor[1] *= c[1];
 			rayColor[2] *= c[2];
+			}
 		}
 		return incomingLight;
 	}

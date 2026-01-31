@@ -15,7 +15,7 @@ public abstract class PhysicalObject {
 				this.luminosity = 0;
 				this.emittedColor = Color.black;
 				this.color = color;
-				this.specularity = 0;
+				this.specularity = 0.1;
 				this.transparency = 0;
 			}
 			case LIGHT -> {
@@ -29,7 +29,7 @@ public abstract class PhysicalObject {
 				this.luminosity = 0;
 				this.emittedColor = Color.BLACK;
 				this.color = color;
-				this.specularity = 1;
+				this.specularity = .99;
 				this.transparency = 0;
 			}
 			case GLASS -> {
@@ -60,7 +60,8 @@ public abstract class PhysicalObject {
 					new Point(new Vec3(x-radius, y, z+radius), 0),
 					material, color
 				)
-			}
+			},
+			new AABB(x+radius, y, y+radius).addPoint(x-radius, y, z-radius)
 		);
 	}
 	public abstract Intersection getIntersection(Vec3 origin, Vec3 direction);

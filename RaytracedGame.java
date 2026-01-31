@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 public class RaytracedGame extends Game{
 
 	private final double focalLength;
-	private final double focusDistance;
 	// this is only for rasterized rendering
 	private final double[][] zBuffer;
 	// this is distance per 16 ms
@@ -46,7 +45,6 @@ public class RaytracedGame extends Game{
 		cam = new Transform();
 		cam.translateAbsolute(cam.getForwardVector().mul(-1));
 
-		this.focusDistance = focusDistance;
 		this.focalLength = (double) width / (2 * Math.tan(fov/2));
 		zBuffer = new double[width][height];
 		pixelBuffer = new Pixel[width][height];
@@ -143,7 +141,7 @@ public class RaytracedGame extends Game{
 			WritableRaster raster = image.getRaster();
 
 			clearZBuffer();
-			int ts = 5;
+			int ts = 6;
 			List<Thread> threads = new ArrayList<>();
 			for (int x = 0; x < ts; x++){
 				for (int y = 0; y < ts; y++){

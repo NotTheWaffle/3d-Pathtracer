@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Mesh extends PhysicalObject{
+	public final AABB bounds;
 	public final Triangle[] triangles;
-	public Mesh(Triangle[] triangles){
+	public Mesh(Triangle[] triangles, AABB bounds){
 		super(null, null);
 		this.triangles = triangles;
+		this.bounds = bounds;
 	}
 	public static Mesh loadObj(String filename, boolean rescale, Color color, Material material){
 		filename = "Models/"+filename+".obj";
@@ -62,7 +64,7 @@ public class Mesh extends PhysicalObject{
 			}
 		} catch (IOException e){
 			System.out.println("Failed to load");
-			return new Mesh(new Triangle[0]);
+			return new Mesh(new Triangle[0], new AABB(0, 0, 0));
 		}
 		System.out.println("  Loaded "+triangles.size()+" triangles");
 		System.out.println("  Loaded "+points.size()+" points");
@@ -86,9 +88,10 @@ public class Mesh extends PhysicalObject{
 				);
 			}
 		}
-		
+		List<Vec3> vecs = points.stream().map((p)->p.pos).toList();
+		AABB bounds = new AABB(vecs);
 		Triangle[] rTriangles = triangles.toArray(Triangle[]::new);
-		return new Mesh(rTriangles);
+		return new Mesh(rTriangles, bounds);
 	}
 	public static Mesh loadObj(String filename, Material material){
 		return loadObj(filename, true, Color.white, material);
@@ -101,6 +104,7 @@ public class Mesh extends PhysicalObject{
 	}
 	@Override
 	public Intersection getIntersection(Vec3 origin, Vec3 direction){
+		if (!bounds.testIntersection(origin, direction)) return null;
 		Intersection intersection = null;
 		for (Triangle tri : triangles){
 			Intersection localIntersection = tri.getIntersection(origin, direction);

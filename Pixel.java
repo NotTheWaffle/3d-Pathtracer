@@ -26,6 +26,7 @@ public class Pixel {
 		this.samples += weight;
 	}
 	public int[] getColor(){
+		if (samples == 0) return new int[] {0, 0, 0};
 		return new int[] {runningColor[0]/samples, runningColor[1]/samples, runningColor[2]/samples};
 	}
 	public void clear(){
