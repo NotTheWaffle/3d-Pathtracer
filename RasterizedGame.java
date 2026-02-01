@@ -74,8 +74,7 @@ public class RasterizedGame extends Game{
 		}
 	}
 	
-	@Override
-	public void updateFrame(Graphics2D g2d){
+	public void generateFrame(){
 		long renderStart = System.nanoTime();
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		WritableRaster raster = image.getRaster();
@@ -97,8 +96,7 @@ public class RasterizedGame extends Game{
 			point.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
 		new Point(new Vec3(0, 0, 0), 1).render(raster, focalLength, cx, cy, zBuffer, cam);
-		
-		g2d.drawImage(image, 0, 0, null);
+		Graphics2D g2d = image.createGraphics();
 		long renderTime = System.nanoTime()-renderStart;
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
 		g2d.drawString("Logic  (ms):"+logicTime/1_000_000.0,0,40);

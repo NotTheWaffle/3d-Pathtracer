@@ -18,12 +18,10 @@ public class BVH {
 		triangles = null;
 	}
 	public BVH(List<Triangle> triangles){
-		System.out.println("Making a bvh with "+triangles.size());
 		bounds = new AABB();
 		bounds.addTriangles(triangles);
 		if (triangles.size() <= MAX_TRIANGLES){
 			this.triangles = triangles;
-			System.out.println("no need to split");
 			return;
 		}
 		double split = (bounds.maxY+bounds.minY)/2;
@@ -71,29 +69,40 @@ public class BVH {
 		return intersection;
 	}
 	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
-		Vec3 p0 = new Vec3(bounds.maxX, bounds.maxY, bounds.maxZ);
-		Vec3 p1 = new Vec3(bounds.maxX, bounds.maxY, bounds.minZ);
-		Vec3 p2 = new Vec3(bounds.maxX, bounds.minY, bounds.maxZ);
-		Vec3 p3 = new Vec3(bounds.maxX, bounds.minY, bounds.minZ);
+	
+
 		
-		Vec3 p4 = new Vec3(bounds.minX, bounds.maxY, bounds.maxZ);
-		Vec3 p5 = new Vec3(bounds.minX, bounds.maxY, bounds.minZ);
-		Vec3 p6 = new Vec3(bounds.minX, bounds.minY, bounds.maxZ);
-		Vec3 p7 = new Vec3(bounds.minX, bounds.minY, bounds.minZ);
-
-		Ray.render(p0, p1, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p1, p2, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p2, p3, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p3, p0, raster, focalLength, cx, cy, zBuffer, cam);
-
-		Ray.render(p4, p5, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p5, p6, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p6, p7, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p7, p4, raster, focalLength, cx, cy, zBuffer, cam);
-
-		Ray.render(p0, p4, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p1, p5, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p2, p6, raster, focalLength, cx, cy, zBuffer, cam);
-		Ray.render(p3, p7, raster, focalLength, cx, cy, zBuffer, cam);
+		if (node0 != null) {
+			node0.render(raster, focalLength, cx, cy, zBuffer, cam);
+		}
+		if (node1 != null) {
+			node1.render(raster, focalLength, cx, cy, zBuffer, cam);
+		}
+		if (true){
+			Vec3 p0 = new Vec3(bounds.maxX, bounds.maxY, bounds.maxZ);
+			Vec3 p1 = new Vec3(bounds.maxX, bounds.maxY, bounds.minZ);
+			Vec3 p2 = new Vec3(bounds.maxX, bounds.minY, bounds.maxZ);
+			Vec3 p3 = new Vec3(bounds.maxX, bounds.minY, bounds.minZ);
+			
+			Vec3 p4 = new Vec3(bounds.minX, bounds.maxY, bounds.maxZ);
+			Vec3 p5 = new Vec3(bounds.minX, bounds.maxY, bounds.minZ);
+			Vec3 p6 = new Vec3(bounds.minX, bounds.minY, bounds.maxZ);
+			Vec3 p7 = new Vec3(bounds.minX, bounds.minY, bounds.minZ);
+			// top face
+			Ray.render(p0, p1, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p1, p3, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p3, p2, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p2, p0, raster, focalLength, cx, cy, zBuffer, cam);
+			// bottom face
+			Ray.render(p4, p5, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p5, p7, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p7, p6, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p6, p4, raster, focalLength, cx, cy, zBuffer, cam);
+			// sides
+			Ray.render(p0, p4, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p1, p5, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p2, p6, raster, focalLength, cx, cy, zBuffer, cam);
+			Ray.render(p3, p7, raster, focalLength, cx, cy, zBuffer, cam);
+		}
 	}
 }

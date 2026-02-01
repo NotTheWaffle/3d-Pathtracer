@@ -123,7 +123,34 @@ public class RaytracedGame extends Game{
 		for (Point point : env.points){
 			point.render(raster, focalLength, cx, cy, zBuffer, cam);
 		}
+		for (PhysicalObject p : env.physicalObjects){
+			if (p instanceof Mesh mesh){
+				mesh.bounds.render(raster, focalLength, cx, cy, zBuffer, cam);
+			}
+		}
 		return image;
+	}
+	private BufferedImage renderRaytraced(){
+		WritableRaster raster = nextFrame.getRaster();
+		int ts = 4;
+		List<Thread> threads = new ArrayList<>();
+		for (int x = 0; x < ts; x++){
+			for (int y = 0; y < ts; y++){
+				final int x_f = x;
+				final int y_f = y;
+				Thread t = new Thread(() -> {
+					raytraceRange(width*x_f/ts, height*y_f/ts, width*(x_f+1)/ts, height*(y_f+1)/ts, raster, 4);
+				});
+				t.start();
+				threads.add(t);
+			}
+		}
+		try {
+			for (Thread t : threads){
+				t.join();
+			}
+		} catch (InterruptedException e){}
+		return nextFrame;
 	}
 	@Override
 	public void generateFrame(){
@@ -135,28 +162,7 @@ public class RaytracedGame extends Game{
 			} catch (IOException e) {}
 		}
 		if (raytrace){
-			//nextFrame = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			WritableRaster raster = nextFrame.getRaster();
-
-			clearZBuffer();
-			int ts = 6;
-			List<Thread> threads = new ArrayList<>();
-			for (int x = 0; x < ts; x++){
-				for (int y = 0; y < ts; y++){
-					final int x_f = x;
-					final int y_f = y;
-					Thread t = new Thread(() -> {
-						raytraceRange(width*x_f/ts, height*y_f/ts, width*(x_f+1)/ts, height*(y_f+1)/ts, raster);
-					});
-					t.start();
-					threads.add(t);
-				}
-			}
-			try {
-				for (Thread t : threads){
-					t.join();
-				}
-			} catch (InterruptedException e){}
+			nextFrame = renderRaytraced();
 		} else {
 			nextFrame = renderRasterized();
 		}
@@ -165,13 +171,10 @@ public class RaytracedGame extends Game{
 		long renderTime = System.nanoTime()-renderStart;
 		g2d.setColor(Color.RED);
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
-		g2d.drawString("Logic  (ms):"+logicTime/1_000_000.0,0,40);
-		
-		g2d.drawString(String.format("%2.2f",Math.random()), 0, 60);
-		g2d.drawString(cam.translation.toString(), 0, 80);
+		g2d.drawString("Samples: "+pixelBuffer[0][0].samples, 0, 40);
 	}
 	
-	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster){
+	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster, int samples){
 		Random random = ThreadLocalRandom.current();
 		Vec3 origin = cam.translation;
 		for (int x = x1; x < x2; x += 1){
@@ -183,7 +186,6 @@ public class RaytracedGame extends Game{
 				
 				Pixel pixel = pixelBuffer[y][x];
 				int[] color = new int[3];
-				int samples = 4;
 				for (int i = 0; i < samples; i++){
 					double[] col = Ray.trace(origin, vector, env, 10, random);
 					color[0] += (int) (255 * col[0]);
