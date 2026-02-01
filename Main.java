@@ -8,7 +8,7 @@ import java.util.concurrent.locks.LockSupport;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "chain";
+		String model = "monkey";
 		double fps = 0;
 		int size = 512;
 		if (args.length > 0){

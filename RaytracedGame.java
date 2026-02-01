@@ -26,9 +26,8 @@ public class RaytracedGame extends Game{
 	private final Transform cam;
 	private final Environment env;
 
-	public static BufferedImage render = null;
-	public static boolean raytrace = false;
-	public static Pixel[][] pixelBuffer;
+	public boolean raytrace = false;
+	public final Pixel[][] pixelBuffer;
 	
 	public static long logicTime;
 
@@ -129,15 +128,15 @@ public class RaytracedGame extends Game{
 	@Override
 	public void generateFrame(){
 		long renderStart = System.nanoTime();
-		if (input.keys['K'] && render != null){
+		if (input.keys['K'] && nextFrame != null){
 			try {
 				File outputfile = new File("saved.png");
-				ImageIO.write(render, "png", outputfile);
+				ImageIO.write(nextFrame, "png", outputfile);
 			} catch (IOException e) {}
 		}
 		if (raytrace){
-			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			WritableRaster raster = image.getRaster();
+			//nextFrame = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			WritableRaster raster = nextFrame.getRaster();
 
 			clearZBuffer();
 			int ts = 6;
@@ -158,17 +157,13 @@ public class RaytracedGame extends Game{
 					t.join();
 				}
 			} catch (InterruptedException e){}
-			
-			nextFrame = image;
 		} else {
 			nextFrame = renderRasterized();
 		}
 		
 		Graphics2D g2d = nextFrame.createGraphics();
 		long renderTime = System.nanoTime()-renderStart;
-		g2d.setColor(Color.gray);
-		g2d.fillRect(0, 0, 120, 85);
-		g2d.setColor(Color.WHITE);
+		g2d.setColor(Color.RED);
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
 		g2d.drawString("Logic  (ms):"+logicTime/1_000_000.0,0,40);
 		

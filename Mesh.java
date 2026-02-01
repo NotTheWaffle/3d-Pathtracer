@@ -9,32 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Mesh extends PhysicalObject{
-	public final AABB bounds;
+	public final BVH bounds;
 	public final Triangle[] triangles;
-	public Mesh(Triangle[] triangles, AABB bounds){
+	public Mesh(Triangle[] triangles, BVH bounds){
 		super(null, null);
 		this.triangles = triangles;
 		this.bounds = bounds;
 	}
+	public Mesh(List<Triangle> triangles){
+		super(null, null);
+		this.triangles = triangles.toArray(Triangle[]::new);
+		this.bounds = new BVH(triangles);
+	}
 	public static Mesh rectangle(double x, double y, double z, double width, Color color, Material material){
 		double radius = width/2;
-		return new Mesh(
-			new Triangle[] {
-				new Triangle(
-					new Point(new Vec3(x+radius, y, z-radius), 0),
-					new Point(new Vec3(x-radius, y, z-radius), 0),
-					new Point(new Vec3(x-radius, y, z+radius), 0),
-					material, color
-				),
-				new Triangle(
-					new Point(new Vec3(x-radius, y, z+radius), 0),
-					new Point(new Vec3(x+radius, y, z+radius), 0),
-					new Point(new Vec3(x+radius, y, z-radius), 0),
-					material, color
-				)
-			},
-			new AABB(x+radius, y, y+radius).addPoint(x-radius, y, z-radius)
+		List<Triangle> tris = List.of(
+			new Triangle(
+				new Point(new Vec3(x+radius, y, z-radius), 0),
+				new Point(new Vec3(x-radius, y, z-radius), 0),
+				new Point(new Vec3(x-radius, y, z+radius), 0),
+				material, color
+			),
+			new Triangle(
+				new Point(new Vec3(x-radius, y, z+radius), 0),
+				new Point(new Vec3(x+radius, y, z+radius), 0),
+				new Point(new Vec3(x+radius, y, z-radius), 0),
+				material, color
+			)
 		);
+		return new Mesh(tris);
 	}
 	public static Mesh loadObj(String filename, double size, Color color, Material material){
 		filename = "Models/"+filename+".obj";
@@ -84,7 +87,7 @@ public class Mesh extends PhysicalObject{
 			}
 		} catch (IOException e){
 			System.out.println("Failed to load");
-			return new Mesh(new Triangle[0], new AABB(0, 0, 0));
+			return new Mesh(new ArrayList<>());
 		}
 		System.out.println("  Loaded "+triangles.size()+" triangles");
 		System.out.println("  Loaded "+points.size()+" points");
@@ -108,10 +111,7 @@ public class Mesh extends PhysicalObject{
 				);
 			}
 		}
-		List<Vec3> vecs = points.stream().map((p)->p.pos).toList();
-		AABB bounds = new AABB(vecs);
-		Triangle[] rTriangles = triangles.toArray(Triangle[]::new);
-		return new Mesh(rTriangles, bounds);
+		return new Mesh(triangles);
 	}
 	public static Mesh loadObj(String filename, Material material){
 		return loadObj(filename, 1, Color.white, material);
@@ -124,15 +124,17 @@ public class Mesh extends PhysicalObject{
 	}
 	@Override
 	public Intersection getIntersection(Vec3 origin, Vec3 direction){
-		if (!bounds.testIntersection(origin, direction)) return null;
-		Intersection intersection = null;
-		for (Triangle tri : triangles){
-			Intersection localIntersection = tri.getIntersection(origin, direction);
-			if (localIntersection == null) continue;
-			if (intersection == null || origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
-				intersection = localIntersection;
-			}
-		}
-		return intersection;
+		return bounds.getIntersection(origin, direction);
+
+	//	if (!bounds.testIntersection(origin, direction)) return null;
+	//	Intersection intersection = null;
+	//	for (Triangle tri : triangles){
+	//		Intersection localIntersection = tri.getIntersection(origin, direction);
+	//		if (localIntersection == null) continue;
+	//		if (intersection == null || origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
+	//			intersection = localIntersection;
+	//		}
+	//	}
+	//	return intersection;
 	}
 }
