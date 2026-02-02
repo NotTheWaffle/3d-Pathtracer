@@ -19,16 +19,18 @@ public class Main {
 
 		Environment env = new Environment();
 
-		env.add(Mesh.loadObj(model, 1, Color.yellow, Material.SOLID));
+		env.add(Mesh.loadObj(model, 1, Color.yellow, Material.MIRROR));
 		
 		// sun
 		env.add(new Sphere(new Vec3(0, 20, 15), 20, Color.WHITE, Material.LIGHT));
 		
-		env.add(new Sphere(new Vec3(0, .25, 2), 1, Color.WHITE, Material.MIRROR));
-		
-		env.add(new Sphere(new Vec3(2.5, .25, 0), 1, Color.GREEN, Material.SOLID));
+		env.add(new RectangularPrism(2, 0, 0, 1, 1, 1, Material.MIRROR, Color.WHITE, 0));
 
-		env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Color.RED, Material.SOLID));
+		//env.add(new Sphere(new Vec3(0, .25, 2), 1, Color.WHITE, Material.MIRROR));
+		
+		//env.add(new Sphere(new Vec3(2.5, .25, 0), 1, Color.GREEN, Material.SOLID));
+
+		//env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Color.RED, Material.SOLID));
 
 		// floor
 		env.add(Mesh.rectangle(0, -1, 0, 20, Color.WHITE, Material.SOLID));
