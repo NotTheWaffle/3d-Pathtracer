@@ -15,17 +15,17 @@ import java.util.List;
 public class Mesh extends PhysicalObject{
 	public final BVH bvh;
 	public final Triangle[] triangles;
-	public Mesh(Triangle[] triangles, BVH bounds, Color color, Material material){
-		super(color, material);
+	public Mesh(Triangle[] triangles, BVH bounds, Material material){
+		super(material);
 		this.triangles = triangles;
 		this.bvh = bounds;
 	}
-	public Mesh(List<Triangle> triangles, Color color, Material material){
-		super(color, material);
+	public Mesh(List<Triangle> triangles, Material material){
+		super(material);
 		this.triangles = triangles.toArray(Triangle[]::new);
 		this.bvh = new BVH(triangles);
 	}
-	public static Mesh rectangle(double x, double y, double z, double width, Color color, Material material){
+	public static Mesh rectangle(double x, double y, double z, double width, Material material){
 		double radius = width/2;
 		List<Triangle> tris = List.of(
 			new Triangle(
@@ -39,7 +39,7 @@ public class Mesh extends PhysicalObject{
 				new Vec3(x+radius, y, z-radius)
 			)
 		);
-		return new Mesh(tris, color, material);
+		return new Mesh(tris, material);
 	}
 	//prolly too many overloads
 	public static Mesh loadObj(String filename){
@@ -100,7 +100,7 @@ public class Mesh extends PhysicalObject{
 			}
 		} catch (IOException e){
 			System.out.println("Failed to load");
-			return new Mesh(new ArrayList<>(), Color.black, null);
+			return new Mesh(new ArrayList<>(), Material.SOLID);
 		}
 		System.out.println("  Loaded "+indexedTriangles.size()+" triangles");
 		System.out.println("  Loaded "+points.size()+" points");
@@ -127,7 +127,7 @@ public class Mesh extends PhysicalObject{
 		}
 		
 		List<Triangle> triangles = indexedTriangles.stream().map((IndexedTriangle itri) -> new Triangle(itri.i1, itri.i2, itri.i3, points)).toList();
-		return new Mesh(triangles, color, material);
+		return new Mesh(triangles, material);
 	}
 	@Override
 	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam){

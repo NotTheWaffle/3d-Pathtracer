@@ -1,12 +1,11 @@
 
 import Math.Vec3;
-import java.awt.Color;
 import java.awt.image.WritableRaster;
 
 public final class RectangularPrism extends PhysicalObject{
 	public final double maxX, maxY, maxZ, minX, minY, minZ;
-	public RectangularPrism(double x0, double x1, double y0, double y1, double z0, double z1, Color color, Material material){
-		super(color, material);
+	public RectangularPrism(double x0, double x1, double y0, double y1, double z0, double z1, Material material){
+		super(material);
 		this.maxX = Math.max(x0, x1);
 		this.minX = Math.min(x0, x1);
 		
@@ -16,8 +15,8 @@ public final class RectangularPrism extends PhysicalObject{
 		this.maxZ = Math.max(z0, z1);
 		this.minZ = Math.min(z0, z1);
 	}
-	public RectangularPrism(double x, double y, double z, double width, double height, double length, Color color, Material material, int flag){
-		this(x-width/2, x+width/2, y-height/2, y+height/2, z-length/2, z+length/2, color, material);
+	public RectangularPrism(double x, double y, double z, double width, double height, double length, Material material, int flag){
+		this(x-width/2, x+width/2, y-height/2, y+height/2, z-length/2, z+length/2, material);
 	}
 	@Override
 	public Intersection getIntersection(Vec3 origin, Vec3 direction){

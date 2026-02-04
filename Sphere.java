@@ -1,16 +1,12 @@
 
 import Math.Vec3;
-import java.awt.Color;
 import java.awt.image.WritableRaster;
 
 public class Sphere extends PhysicalObject{
 	public final Vec3 point;
 	public final double radius;
-	public Sphere(Vec3 p, double radius, Material material){
-		this(p, radius, new Color((int)(Math.random()*16777216)), material);
-	}
-	public Sphere(Vec3 point, double radius, Color color, Material material){
-		super(color, material);
+	public Sphere(Vec3 point, double radius, Material material){
+		super(material);
 		this.point = point;
 		this.radius = radius;
 	}
@@ -30,15 +26,11 @@ public class Sphere extends PhysicalObject{
 		int maxX = Math.min(zBuffer.length - 1, screenX+projectedRadius);
 		int minY = Math.max(0, screenY-projectedRadius);
 		int maxY = Math.min(zBuffer[0].length - 1, screenY+projectedRadius);
-		Color color = new Color(
-			this.reflectionColor.getRed()+emissionColor.getRed(),
-			this.reflectionColor.getGreen()+emissionColor.getGreen(),
-			this.reflectionColor.getBlue()+emissionColor.getBlue()
-		);
+		
 		int[] rgb = {
-			color.getRed(),
-			color.getGreen(),
-			color.getBlue(),
+			(int) (255 * this.reflectionColor[0]+emissionColor[0]),
+			(int) (255 * this.reflectionColor[1]+emissionColor[1]),
+			(int) (255 * this.reflectionColor[2]+emissionColor[2]),
 			255
 		};
 		

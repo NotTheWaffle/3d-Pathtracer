@@ -1,72 +1,25 @@
 
 import Math.Vec3;
-import java.awt.Color;
 import java.awt.image.WritableRaster;
 
 /**
  * An abstract object which represents the Physical parts of an object
  */
 public abstract class PhysicalObject {
-	public final Color reflectionColor;
-	public final Color emissionColor;
+	public final double[] reflectionColor;
+	public final double[] emissionColor;
 	public final double emissionStrength;
 	public final double specularity;
 	public final double transparency;
 	public final double specularityChance;
 
-	public PhysicalObject(Color color, Material material){
-		switch (material){
-			case SOLID -> {
-				this.emissionStrength = 0;
-				this.emissionColor = Color.BLACK;
-
-				this.reflectionColor = color;
-				this.specularity = 0;
-				this.specularityChance = 0;
-				
-				this.transparency = 0;
-			}
-			case SHINY_SOLID -> {
-				this.emissionStrength = 0;
-				this.emissionColor = Color.BLACK;
-				this.reflectionColor = color;
-				this.specularity = 1;
-				this.transparency = 0;
-				this.specularityChance = 1;
-			}
-			case LIGHT -> {
-				this.emissionStrength = 1;
-				this.emissionColor = color;
-				this.reflectionColor = Color.BLACK;
-				this.specularity = 0;
-				this.transparency = 0;
-				this.specularityChance = 0;
-			}
-			case MIRROR -> {
-				this.emissionStrength = 0;
-				this.emissionColor = Color.BLACK;
-				this.reflectionColor = Color.WHITE;
-				this.specularity = 1;
-				this.transparency = 0;
-				this.specularityChance = 1;
-			}
-			case GLASS -> {
-				this.emissionStrength = 0;
-				this.emissionColor = Color.BLACK;
-				this.reflectionColor = color;
-				this.specularity = 0;
-				this.transparency = 1;
-				this.specularityChance = 0;
-			}
-			case null -> {
-				this.emissionStrength = 0;
-				this.emissionColor = Color.BLACK;
-				this.reflectionColor = Color.WHITE;
-				this.specularity = 0;
-				this.transparency = 0;
-				this.specularityChance = 0;
-			}
-		}
+	public PhysicalObject(Material material){
+		this.reflectionColor = new double[] {material.reflectionColor.getRed()/255.0, material.reflectionColor.getGreen()/255.0, material.reflectionColor.getBlue()/255.0};
+		this.emissionColor =new double[] {material.emissionColor.getRed()/255.0, material.emissionColor.getGreen()/255.0, material.emissionColor.getBlue()/255.0};
+		this.emissionStrength = material.emissionStrength;
+		this.specularity = material.specularity;
+		this.transparency = material.transparency;
+		this.specularityChance = material.specularityChance;
 	}
 	public abstract Intersection getIntersection(Vec3 origin, Vec3 direction);
 	public abstract void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam);

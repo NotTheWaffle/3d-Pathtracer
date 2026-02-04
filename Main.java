@@ -8,7 +8,7 @@ import java.util.concurrent.locks.LockSupport;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "cube";
+		String model = "chain";
 		double fps = 0;
 		int size = 512;
 		if (args.length > 0){
@@ -18,19 +18,18 @@ public class Main {
 
 
 		Environment env = new Environment();
-		env.add(new RectangularPrism(0, 1, 0, 1, 1, 1, Color.red, Material.SOLID, 0));
 		
-		//env.add(Mesh.loadObj(model));
+		env.add(Mesh.loadObj(model));
 
 		// sun
-		env.add(new Sphere(new Vec3(0, 20, 15), 20, Color.WHITE, Material.LIGHT));
+		env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
 		
-		env.add(new Sphere(new Vec3(0, .25, 2), 1, Color.RED, Material.SOLID));
-		env.add(new Sphere(new Vec3(2.5, .25, 0), 1, Color.GREEN, Material.SOLID));
-		env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Color.BLUE, Material.SOLID));
+		env.add(new Sphere(new Vec3(0, .25, 2.5), 1, Material.solid(Color.RED)));
+		env.add(new Sphere(new Vec3(2.5, .25, 0), 1, Material.solid(Color.GREEN)));
+		env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Material.solid(Color.BLUE)));
 
 		// floor
-		env.add(Mesh.rectangle(0, -1, 0, 20, Color.WHITE, Material.SOLID));
+		env.add(Mesh.rectangle(0, -1, 0, 40, Material.SOLID));
 		
 		
 		runGame(new RaytracedGame(size, size, Math.PI*.5, 1, env), fps);
