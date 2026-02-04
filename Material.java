@@ -14,6 +14,8 @@ public class Material {
 	public static final Material LIGHT  = new Material(1, Color.WHITE, Color.BLACK, 0, 0, 0);
 	public static final Material MIRROR = new Material(0, Color.BLACK, Color.WHITE, 1, 1, 0);
 	public static final Material GLASS  = new Material(0, Color.BLACK, Color.WHITE, 0, 0, 1);
+	public static final Material PLASTIC = new Material(0, Color.BLACK, Color.WHITE, 1, .1, 0);
+	public static final Material METAL = new Material(0, Color.BLACK, Color.WHITE, 0, 0, 0);
 	public Material(double emissionStrength, Color emissionColor, Color reflectionColor, double specularity, double specularityChance, double transparency){
 		this.emissionStrength = emissionStrength;
 		this.emissionColor = emissionColor;
@@ -27,10 +29,10 @@ public class Material {
 	public static Material solid(Color color){
 		return new Material(0, Color.BLACK, color, 0, 0, 0);
 	}
-	public static Material light(Color color){
-		return new Material(1, color, Color.BLACK, 0, 0, 0);
-	}
 	public static Material glass(Color color){
 		return new Material(0, Color.BLACK, color, 0, 0, 1);
+	}
+	public static Material plastic(Color color){
+		return new Material(0, Color.BLACK, color, 1, .1, 0);
 	}
 }

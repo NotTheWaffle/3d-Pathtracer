@@ -93,6 +93,7 @@ public final class Triangle{
 	}
 	public Pair<Vec3, Vec3> getIntersection(Vec3 rayOrigin, Vec3 rayVector){
 		final double EPSILON = 1e-8;
+		//if (rayVector.dot(normal) < 0) return null;
 
 		Vec3 edge1 = p2.sub(p1);
 		Vec3 edge2 = p3.sub(p1);

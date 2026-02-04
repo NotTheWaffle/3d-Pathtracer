@@ -17,8 +17,8 @@ import javax.imageio.ImageIO;
 public class RaytracedGame extends Game{
 	private final double focalLength;
 	
-	private final double focusDepth = 3;
-	private final double focus = .1;
+	private final double focusDepth;
+	private final double focus;
 	// this is only for rasterized rendering
 	private final double[][] zBuffer;
 	// this is distance per 16 ms
@@ -36,20 +36,23 @@ public class RaytracedGame extends Game{
 	private final int cx;
 	private final int cy;
 
-	public RaytracedGame(int width, int height, double fov, double focusDistance, Environment env){
+	public RaytracedGame(int width, int height, double fov, double focusDepth, double focus, Environment env){
 		super(width, height);
-
+		System.out.println(width+" "+height);
 		cx = width / 2;
 		cy = height / 2;
 
 		this.env = env;
 		cam = new Transform();
 		cam.translateAbsolute(cam.getForwardVector().mul(-1));
+	
 
 		this.focalLength = (double) width / (2 * Math.tan(fov/2));
+		this.focusDepth = focusDepth;
+		this.focus = focus;
 		zBuffer = new double[width][height];
 
-		pixelBuffer = new Pixel[width][height];
+		pixelBuffer = new Pixel[height][width];
 		for (Pixel[] row : pixelBuffer) {
 			for (int x = 0; x < row.length; x++) {
 				row[x] = new Pixel();
@@ -114,16 +117,16 @@ public class RaytracedGame extends Game{
 		return image;
 	}
 
-	private BufferedImage renderRaytraced(){
+	private BufferedImage renderRaytraced(int threadCount, int samples){
 		WritableRaster raster = nextFrame.getRaster();
-		int threadSqrt = 4;
+		int threadSqrt = (int)Math.sqrt(threadCount);
 		List<Thread> threads = new ArrayList<>();
 		for (int x = 0; x < threadSqrt; x++){
 			for (int y = 0; y < threadSqrt; y++){
 				final int x_f = x;
 				final int y_f = y;
 				Thread t = new Thread(() -> {
-					raytraceRange(width*x_f/threadSqrt, height*y_f/threadSqrt, width*(x_f+1)/threadSqrt, height*(y_f+1)/threadSqrt, raster, 4);
+					raytraceRange(width*x_f/threadSqrt, height*y_f/threadSqrt, width*(x_f+1)/threadSqrt, height*(y_f+1)/threadSqrt, raster, samples);
 				});
 				t.start();
 				threads.add(t);
@@ -146,7 +149,7 @@ public class RaytracedGame extends Game{
 			} catch (IOException e) {}
 		}
 		if (raytrace){
-			nextFrame = renderRaytraced();
+			nextFrame = renderRaytraced(16, 4);
 		} else {
 			nextFrame = renderRasterized();
 		}
@@ -160,17 +163,22 @@ public class RaytracedGame extends Game{
 	
 	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster, int samples){
 		Random random = ThreadLocalRandom.current();
+		Vec3 origin = cam.translation;
 		for (int x = x1; x < x2; x += 1){
 			for (int y = y1; y < y2; y += 1){
-				Vec3 origin = cam.translation.add(new Vec3((random.nextDouble()-.5)*focus, (random.nextDouble()-.5)*focus, (random.nextDouble()-.5)*focus));
-				Vec3 pixelPoint = cam.translation.add(cam.rot.transform(new Vec3(x-cx, cy-y, focalLength).mul(focusDepth/focalLength)));
-				//Vec3 vector = cam.rot.transform((new Vec3(x-cx, cy-y, focalLength)).normalize());
-				Vec3 vector = pixelPoint.sub(origin).normalize();
+				Vec3 vector;
+				if (focus == 0){
+					vector = cam.rot.transform((new Vec3(x-cx, cy-y, focalLength)).normalize());
+				} else {
+					origin = cam.translation.add(new Vec3((random.nextDouble()-.5)*focus, (random.nextDouble()-.5)*focus, (random.nextDouble()-.5)*focus));
+					Vec3 pixelPoint = cam.translation.add(cam.rot.transform(new Vec3(x-cx, cy-y, focalLength).mul(focusDepth/focalLength)));
+					vector = pixelPoint.sub(origin).normalize();
+				}
 				
 				Pixel pixel = pixelBuffer[y][x];
 				int[] color = new int[3];
 				for (int i = 0; i < samples; i++){
-					double[] col = Ray.trace(origin, vector, env, 10, random);
+					double[] col = Ray.trace(origin, vector, env, 5, random);
 					color[0] += (int) (255 * col[0]);
 					color[1] += (int) (255 * col[1]);
 					color[2] += (int) (255 * col[2]);

@@ -76,16 +76,18 @@ public final class Ray {
 
 
 	public static void render(Vec3 start, Vec3 end, WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
-		start = Point.project(start, cam, focalLength);
-		end = Point.project(end, cam, focalLength);
-
-		if (start.z < 0 || end.z < 0) return;
+		Vec3 projectedStart = cam.applyTo(start);
+		Vec3 projectedEnd = cam.applyTo(end);
 		
-		double x1 = (start.x+cx);
-		double y1 = (cy-start.y);
+		
+		if (projectedStart.z < 0 || projectedEnd.z < 0) return;
 
-		double x2 = (end.x+cx);
-		double y2 = (cy-end.y);
+		
+		double x1 = ((focalLength * projectedStart.x / projectedStart.z)+cx);
+		double y1 = (cy-(focalLength * projectedStart.y / projectedStart.z));
+
+		double x2 = ((focalLength * projectedEnd.x / projectedEnd.z)+cx);
+		double y2 = (cy-(focalLength * projectedEnd.y / projectedEnd.z));
 
 		if (x1 > x2){
 			double temp = x1;
@@ -110,7 +112,7 @@ public final class Ray {
 			255
 		};
 		for (double x = x1, y = y1; x < x2; x+=dx, y+=dy){
-			if (x < 0 || x > 512 || y < 0 || y > 512){
+			if (x < 0 || x > width || y < 0 || y > height){
 				break;
 			}
 			raster.setPixel((int)x, (int)y, color);
