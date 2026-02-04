@@ -9,46 +9,62 @@ import java.awt.image.WritableRaster;
 public abstract class PhysicalObject {
 	public final Color reflectionColor;
 	public final Color emissionColor;
-	public final double luminosity;
+	public final double emissionStrength;
 	public final double specularity;
 	public final double transparency;
+	public final double specularityChance;
 
 	public PhysicalObject(Color color, Material material){
 		switch (material){
 			case SOLID -> {
-				this.luminosity = 0;
+				this.emissionStrength = 0;
 				this.emissionColor = Color.BLACK;
+
 				this.reflectionColor = color;
 				this.specularity = 0;
+				this.specularityChance = 0;
+				
 				this.transparency = 0;
 			}
+			case SHINY_SOLID -> {
+				this.emissionStrength = 0;
+				this.emissionColor = Color.BLACK;
+				this.reflectionColor = color;
+				this.specularity = 1;
+				this.transparency = 0;
+				this.specularityChance = 1;
+			}
 			case LIGHT -> {
-				this.luminosity = 1;
+				this.emissionStrength = 1;
 				this.emissionColor = color;
 				this.reflectionColor = Color.BLACK;
 				this.specularity = 0;
 				this.transparency = 0;
+				this.specularityChance = 0;
 			}
 			case MIRROR -> {
-				this.luminosity = 0;
+				this.emissionStrength = 0;
 				this.emissionColor = Color.BLACK;
 				this.reflectionColor = Color.WHITE;
 				this.specularity = 1;
 				this.transparency = 0;
+				this.specularityChance = 1;
 			}
 			case GLASS -> {
-				this.luminosity = 0;
+				this.emissionStrength = 0;
 				this.emissionColor = Color.BLACK;
 				this.reflectionColor = color;
 				this.specularity = 0;
 				this.transparency = 1;
+				this.specularityChance = 0;
 			}
 			case null -> {
-				this.luminosity = 0;
+				this.emissionStrength = 0;
 				this.emissionColor = Color.BLACK;
 				this.reflectionColor = Color.WHITE;
 				this.specularity = 0;
 				this.transparency = 0;
+				this.specularityChance = 0;
 			}
 		}
 	}

@@ -8,7 +8,7 @@ import java.util.concurrent.locks.LockSupport;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "tetrahedron";
+		String model = "cube";
 		double fps = 0;
 		int size = 512;
 		if (args.length > 0){
@@ -18,17 +18,16 @@ public class Main {
 
 
 		Environment env = new Environment();
-
-		env.add(Mesh.loadObj(model, 0, Color.WHITE, Material.MIRROR));
+		env.add(new RectangularPrism(0, 1, 0, 1, 1, 1, Color.red, Material.SOLID, 0));
 		
+		//env.add(Mesh.loadObj(model));
+
 		// sun
 		env.add(new Sphere(new Vec3(0, 20, 15), 20, Color.WHITE, Material.LIGHT));
 		
-		env.add(new Sphere(new Vec3(0, .25, 2), 1, Color.WHITE, Material.MIRROR));
-		
+		env.add(new Sphere(new Vec3(0, .25, 2), 1, Color.RED, Material.SOLID));
 		env.add(new Sphere(new Vec3(2.5, .25, 0), 1, Color.GREEN, Material.SOLID));
-
-		env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Color.RED, Material.SOLID));
+		env.add(new Sphere(new Vec3(-2.5, .25, 0), 1, Color.BLUE, Material.SOLID));
 
 		// floor
 		env.add(Mesh.rectangle(0, -1, 0, 20, Color.WHITE, Material.SOLID));

@@ -10,7 +10,7 @@ public class BVH {
 	public static final int MAX_DEPTH = 10;
 	private BVH node0;
 	private BVH node1;
-	private List<Triangle> triangles;
+	private Triangle[] triangles;
 	private final AABB bounds;
 	public BVH(){
 		bounds = new AABB();
@@ -22,6 +22,35 @@ public class BVH {
 		bounds = new AABB();
 		bounds.addTriangles(triangles);
 		if (triangles.size() <= MAX_TRIANGLES){
+			this.triangles = triangles.toArray(Triangle[]::new);
+			return;
+		}
+		double split = (bounds.maxY+bounds.minY)/2;
+		List<Triangle> side0 = new ArrayList<>();
+		List<Triangle> side1 = new ArrayList<>();
+		for (Triangle tri : triangles){
+			if (tri.center().y > split){
+				side1.add(tri);
+			} else {
+				side0.add(tri);
+			}
+		}
+		if (side0.isEmpty()){
+			this.triangles = side1.toArray(Triangle[]::new);
+			return;
+		}
+		if (side1.isEmpty()){
+			this.triangles = side0.toArray(Triangle[]::new);
+			return;
+		}
+		node0 = new BVH(side0);
+		node1 = new BVH(side1);
+	}
+	
+	public BVH(Triangle[] triangles){
+		bounds = new AABB();
+		bounds.addTriangles(triangles);
+		if (triangles.length <= MAX_TRIANGLES){
 			this.triangles = triangles;
 			return;
 		}
@@ -36,11 +65,11 @@ public class BVH {
 			}
 		}
 		if (side0.isEmpty()){
-			this.triangles = side1;
+			this.triangles = side1.toArray(Triangle[]::new);
 			return;
 		}
 		if (side1.isEmpty()){
-			this.triangles = side0;
+			this.triangles = side0.toArray(Triangle[]::new);
 			return;
 		}
 		node0 = new BVH(side0);

@@ -22,9 +22,10 @@ public final class Transform {
 		return inv.transform(point.sub(translation));
 	}
 	
-	public void rotateX(double pitch){
+	public Transform rotateX(double pitch){
 		rot = Mat3.multiply(rot, rotationX(-pitch));
 		inv = rot.transpose();
+		return this;
 	}
 	public void rotateY(double yaw){
 		rot = Mat3.multiply(rot, rotationY(-yaw));

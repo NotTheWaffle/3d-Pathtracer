@@ -20,7 +20,16 @@ public final class AABB{
 			addPoint(p);
 		}
 	}
-	public AABB addTriangles(List<Triangle> tris){
+	public AABB addTriangles(Iterable<Triangle> tris){
+		for (Triangle tri : tris){
+			addPoint(tri.p1);
+			addPoint(tri.p2);
+			addPoint(tri.p3);
+		}
+		return this;
+
+	}
+	public AABB addTriangles(Triangle[] tris){
 		for (Triangle tri : tris){
 			addPoint(tri.p1);
 			addPoint(tri.p2);

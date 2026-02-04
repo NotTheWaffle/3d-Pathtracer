@@ -31,14 +31,15 @@ public final class Ray {
 			
 			
 			//find next ray
-			Vec3 nextDirection = direction.sub(intersection.normal.mul(2 * direction.dot(intersection.normal))).normalize();
-			double iv = collisionObject.specularity;
-			double variance = 1-iv;
-			nextDirection = new Vec3(
-				nextDirection.x*iv+(random.nextDouble()-.5)*variance,
-				nextDirection.y*iv+(random.nextDouble()-.5)*variance,
-				nextDirection.z*iv+(random.nextDouble()-.5)*variance
-			).normalize();
+			Vec3 specularDirection = direction.sub(intersection.normal.mul(2 * direction.dot(intersection.normal))).normalize();
+			Vec3 diffuseDirection = new Vec3(random.nextDouble() - .5, random.nextDouble() - .5, random.nextDouble() - .5);
+			if (diffuseDirection.dot(intersection.normal) < 0) diffuseDirection = diffuseDirection.mul(-1);
+			Vec3 nextDirection;
+			if (random.nextDouble() < collisionObject.specularityChance){
+				nextDirection = lerp(diffuseDirection, specularDirection, collisionObject.specularity).normalize();
+			} else {
+				nextDirection = diffuseDirection.normalize();
+			}
 			origin = intersection.pos;
 			direction = nextDirection;
 			
@@ -49,9 +50,9 @@ public final class Ray {
 
 			
 			double[] emittedLight = {
-				collisionObject.luminosity*emittedColor.getRed()/255.0,
-				collisionObject.luminosity*emittedColor.getGreen()/255.0,
-				collisionObject.luminosity*emittedColor.getBlue()/255.0,
+				collisionObject.emissionStrength*emittedColor.getRed()/255.0,
+				collisionObject.emissionStrength*emittedColor.getGreen()/255.0,
+				collisionObject.emissionStrength*emittedColor.getBlue()/255.0,
 			};
 			incomingLight[0] += emittedLight[0] * rayColor[0];
 			incomingLight[1] += emittedLight[1] * rayColor[1];
@@ -69,6 +70,14 @@ public final class Ray {
 		return incomingLight;
 	}
 
+	public static Vec3 lerp(final Vec3 start, final Vec3 end, final double a){
+		final double ia = 1-a;
+		return new Vec3(
+			start.x * ia + end.x * a,
+			start.y * ia + end.y * a,
+			start.z * ia + end.z * a
+		);
+	}
 
 
 	public static void render(Vec3 start, Vec3 end, WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
