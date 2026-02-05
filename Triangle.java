@@ -16,6 +16,14 @@ public final class Triangle{
 		this.normal = normal();
 	}
 	public Triangle(int i1, int i2, int i3, List<Vec3> points){
+		if (i1 < 0) i1 += points.size();
+		if (i2 < 0) i2 += points.size();
+		if (i3 < 0) i3 += points.size();
+		if (i1 < 0 || i2 < 0 || i3 < 0 || i1 >= points.size() || i2 >= points.size() || i3 >= points.size()){
+
+			System.out.println("error");
+			i1 = i2 = i3 = 0;
+		}
 		this(points.get(i1), points.get(i2), points.get(i3));
 	}
 	public Vec3 center(){
@@ -93,7 +101,8 @@ public final class Triangle{
 	}
 	public Pair<Vec3, Vec3> getIntersection(Vec3 rayOrigin, Vec3 rayVector){
 		final double EPSILON = 1e-8;
-		//if (rayVector.dot(normal) < 0) return null;
+		// the ray should be pointing in the opposite direction as the normal, else they shouldn't've interescted
+		if (rayVector.dot(normal) > 0) return null;
 
 		Vec3 edge1 = p2.sub(p1);
 		Vec3 edge2 = p3.sub(p1);

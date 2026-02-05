@@ -111,8 +111,16 @@ public class RaytracedGame extends Game{
 		WritableRaster raster = image.getRaster();
 		clearZBuffer();
 		
-		for (PhysicalObject physicalObjects : env.physicalObjects){
-			physicalObjects.render(raster, focalLength, cx, cy, zBuffer, cam);
+		for (PhysicalObject object : env.physicalObjects){
+			object.render(raster, focalLength, cx, cy, zBuffer, cam);
+		}
+		for (PhysicalObject object : env.physicalObjects){
+			if (object instanceof Mesh mesh){
+				for (Triangle tri : mesh.triangles){
+					//Ray.render(tri.center(), tri.center().add(tri.normal), raster, focalLength, cx, cy, zBuffer, cam);
+				}
+				mesh.bvh.render(raster, focalLength, cx, cy, zBuffer, cam);
+			}
 		}
 		return image;
 	}
@@ -149,7 +157,7 @@ public class RaytracedGame extends Game{
 			} catch (IOException e) {}
 		}
 		if (raytrace){
-			nextFrame = renderRaytraced(16, 4);
+			nextFrame = renderRaytraced(64, 4);
 		} else {
 			nextFrame = renderRasterized();
 		}

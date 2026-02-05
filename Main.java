@@ -7,8 +7,9 @@ import java.awt.Color;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "chain";
-		int size = 100;
+		String model = "Models/"+"dragon1mil"+".obj";
+		//model = "compact.obj";
+		int size = 1920;
 		if (args.length > 0){
 			model = args[0];
 			size = Integer.parseInt(args[1]);
@@ -17,24 +18,23 @@ public class Main {
 
 		Environment env = new Environment();
 		
-		env.add(Mesh.loadObj(model));
+		env.add(Mesh.loadObj(model, 0, .35, 0, 2, Material.MIRROR));
 
 		// sun
 		env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
 		
-		env.add(new Sphere(new Vec3(0, 0, 2.5), 1, Material.plastic(Color.RED)));
-		env.add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.plastic(Color.GREEN)));
-		env.add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.plastic(Color.BLUE)));
+		env.add(new Sphere(new Vec3(0, 0, 2.5), 1, Material.solid(Color.RED)));
+		env.add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.solid(Color.GREEN)));
+		env.add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.solid(Color.BLUE)));
 
 
 
-		env.add(new RectangularPrism(0, 0, -2.5, 1, 1, 1, Material.PLASTIC, 0));
 
 		// floor
-		env.add(Mesh.rectangle(0, -.5, 0, 20, Material.METAL));
+		env.add(Mesh.rectangle(0, -.5, 0, 10, Material.SOLID));
 		
 		
-		runGame(new RaytracedGame(size*16, size*9, Math.PI*.5, 1, 0, env));
+		runGame(new RaytracedGame(1920, 1080, Math.PI*.5, 1, .001, env));
 	}
 	public static Thread runGame(final Game game){
 		Thread t1 = new Thread(

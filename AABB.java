@@ -37,32 +37,43 @@ public final class AABB{
 		}
 		return this;
 	}
-	public boolean testIntersection(Vec3 origin, Vec3 direction){
-		double tx0 = (minX-origin.x)/direction.x;
-		double tx1 = (maxX-origin.x)/direction.x;
+	public double testIntersection(Vec3 origin, Vec3 direction){
+		final double EPSILON = 1e-8;
+		double temp;
+		double txenter = (minX-origin.x)/direction.x;
+		double txexit = (maxX-origin.x)/direction.x;
+
+		if (txenter > txexit){
+			temp = txenter;
+			txenter = txexit;
+			txexit = temp;
+		}
 		
-		double ty0 = (minY-origin.y)/direction.y;
-		double ty1 = (maxY-origin.y)/direction.y;
+		double tyenter = (minY-origin.y)/direction.y;
+		double tyexit = (maxY-origin.y)/direction.y;
+
+		if (tyenter > tyexit){
+			temp = tyenter;
+			tyenter = tyexit;
+			tyexit = temp;
+		}
 		
-		double tz0 = (minZ-origin.z)/direction.z;
-		double tz1 = (maxZ-origin.z)/direction.z;
+		double tzenter = (minZ-origin.z)/direction.z;
+		double tzexit = (maxZ-origin.z)/direction.z;
 
-		double txenter = Math.min(tx0, tx1);
-		double txexit = Math.max(tx0, tx1);
-
-		double tyenter = Math.min(ty0, ty1);
-		double tyexit = Math.max(ty0, ty1);
-
-		double tzenter = Math.min(tz0, tz1);
-		double tzexit = Math.max(tz0, tz1);
+		if (tzenter > tzexit){
+			temp = tzenter;
+			tzenter = tzexit;
+			tzexit = temp;
+		}
 
 		double tenter = Math.max(txenter, Math.max(tyenter, tzenter));
 		double texit = Math.min(txexit, Math.min(tyexit, tzexit));
 
-		if (texit < tenter){
-			return false;
+		if (tenter <= texit && texit > 0){
+			return Math.max(tenter, 0);
 		}
-		return texit >= 0;
+		return -1;
 	}
 	/**
 	 * @param x

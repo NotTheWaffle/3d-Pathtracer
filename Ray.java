@@ -15,14 +15,14 @@ public final class Ray {
 			Intersection intersection = null;
 			for (PhysicalObject p : env.physicalObjects){
 				Intersection localIntersection = p.getIntersection(origin, direction);
-				if (localIntersection == null) continue;
-				if (intersection == null || origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
-					intersection = localIntersection;
-				}
+				if (localIntersection == null || (intersection != null && origin.dist(intersection.pos) < origin.dist(localIntersection.pos)) || localIntersection.normal.dot(direction) > 0) continue;
+				intersection = localIntersection;
 			}
 
 			//break if no intersection
-			if (intersection == null) break;
+			if (intersection == null) {
+				break;
+			}
 			
 			
 			PhysicalObject object = intersection.object;

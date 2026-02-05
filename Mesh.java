@@ -1,10 +1,11 @@
 
 import Math.Pair;
 import Math.Vec3;
-import java.awt.Color;
 import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +44,15 @@ public class Mesh extends PhysicalObject{
 	}
 	//prolly too many overloads
 	public static Mesh loadObj(String filename){
-		return loadObj(filename, 0, 0, 0, 1, Color.WHITE, Material.SOLID);
+		return loadObj(filename, 0, 0, 0, 1, Material.SOLID);
 	}
-	public static Mesh loadObj(String filename, Color color, Material material){
-		return loadObj(filename, 0, 0, 0, 1, color, material);
+	public static Mesh loadObj(String filename, Material material){
+		return loadObj(filename, 0, 0, 0, 1, material);
 	}
-	public static Mesh loadObj(String filename, double size, Color color, Material material){
-		return loadObj(filename, 0, 0, 0, size, color, material);
+	public static Mesh loadObj(String filename, double size, Material material){
+		return loadObj(filename, 0, 0, 0, size, material);
 	}
-	public static Mesh loadObj(String filename, double x, double y, double z, double size, Color color, Material material){
-		filename = "Models/"+filename+".obj";
+	public static Mesh loadObj(String filename, double x, double y, double z, double size, Material material){
 		System.out.println("Loading "+filename+"... ");
 		
 		List<Vec3> points = new ArrayList<>();
@@ -105,28 +105,49 @@ public class Mesh extends PhysicalObject{
 		System.out.println("  Loaded "+indexedTriangles.size()+" triangles");
 		System.out.println("  Loaded "+points.size()+" points");
 		System.out.println(filename+" successfully loaded");
-		if (size > 0){
-			double xrange = maxX-minX;
-			double yrange = maxY-minY;
-			double zrange = maxZ-minZ;
-			double maxRange = Math.max(Math.max(xrange,yrange),zrange);
+		
+		double xrange = maxX-minX;
+		double yrange = maxY-minY;
+		double zrange = maxZ-minZ;
+		double maxRange = Math.max(Math.max(xrange,yrange),zrange);
 
-			double scale = size/maxRange;
+		double scale = (size == 0 ? 1 : size/maxRange);
 
-			xrange *= scale;
-			yrange *= scale;
-			zrange *= scale;
-			for (int i = 0; i < points.size(); i++){
-				Vec3 p = points.get(i);
-				points.set(i, new Vec3(
-					(p.x - minX)*scale-xrange/2+x,
-					(p.y - minY)*scale-yrange/2+y,
-					(p.z - minZ)*scale-zrange/2+z
-				));
-			}
+		xrange *= scale;
+		yrange *= scale;
+		zrange *= scale;
+		for (int i = 0; i < points.size(); i++){
+			Vec3 p = points.get(i);
+			points.set(i, new Vec3(
+				(p.x - minX)*scale-xrange/2+x,
+				(p.y - minY)*scale-yrange/2+y,
+				(p.z - minZ)*scale-zrange/2+z
+			));
 		}
 		
-		List<Triangle> triangles = indexedTriangles.stream().map((IndexedTriangle itri) -> new Triangle(itri.i1, itri.i2, itri.i3, points)).toList();
+		
+		List<Triangle> triangles = new ArrayList<>(indexedTriangles.size());
+		for (int i = 0; i < indexedTriangles.size(); i++){
+			IndexedTriangle itri = indexedTriangles.get(i);
+			triangles.add(new Triangle(itri.i1, itri.i2, itri.i3, points));
+		}
+
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter("compact.obj"))){
+			for (Vec3 point : points){
+				writer.write(String.format("v %.6f %.6f %.6f%n", point.x, point.y, point.z));
+			}
+			for (IndexedTriangle itri : indexedTriangles){
+				writer.write(String.format(
+					"f %d %d %d%n",
+					itri.i1 + 1,
+					itri.i2 + 1,
+					itri.i3 + 1
+				));
+			}
+		} catch (IOException e){
+			System.out.println("faile");
+		}
+
 		return new Mesh(triangles, material);
 	}
 	@Override

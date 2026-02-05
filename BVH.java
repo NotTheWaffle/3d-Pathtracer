@@ -7,7 +7,7 @@ import java.util.List;
 
 public class BVH {
 	public static final int MAX_TRIANGLES = 20;
-	public static final int MAX_DEPTH = 10;
+	public static final int MAX_DEPTH = 20;
 	private BVH node0;
 	private BVH node1;
 	private Triangle[] triangles;
@@ -25,16 +25,20 @@ public class BVH {
 			this.triangles = triangles.toArray(Triangle[]::new);
 			return;
 		}
-		double split = (bounds.maxY+bounds.minY)/2;
 		List<Triangle> side0 = new ArrayList<>();
 		List<Triangle> side1 = new ArrayList<>();
-		for (Triangle tri : triangles){
-			if (tri.center().y > split){
-				side1.add(tri);
-			} else {
-				side0.add(tri);
-			}
+
+		double xRange = bounds.maxX-bounds.minX;
+		double yRange = bounds.maxY-bounds.minY;
+		double zRange = bounds.maxZ-bounds.minZ;
+		if (xRange > yRange && xRange > zRange){
+			splitX(triangles, xRange/2+bounds.minX, side0, side1);
+		} else if (yRange > xRange && yRange > zRange){
+			splitY(triangles, yRange/2+bounds.minY, side0, side1);
+		} else {
+			splitZ(triangles, zRange/2+bounds.minZ, side0, side1);
 		}
+
 		if (side0.isEmpty()){
 			this.triangles = side1.toArray(Triangle[]::new);
 			return;
@@ -47,16 +51,16 @@ public class BVH {
 		node1 = new BVH(side1);
 	}
 	
-	public BVH(Triangle[] triangles){
-		bounds = new AABB();
-		bounds.addTriangles(triangles);
-		if (triangles.length <= MAX_TRIANGLES){
-			this.triangles = triangles;
-			return;
+	public static void splitX(List<Triangle> triangles, double split, List<Triangle> side0, List<Triangle> side1){
+		for (Triangle tri : triangles){
+			if (tri.center().x > split){
+				side1.add(tri);
+			} else {
+				side0.add(tri);
+			}
 		}
-		double split = (bounds.maxY+bounds.minY)/2;
-		List<Triangle> side0 = new ArrayList<>();
-		List<Triangle> side1 = new ArrayList<>();
+	}
+	public static void splitY(List<Triangle> triangles, double split, List<Triangle> side0, List<Triangle> side1){
 		for (Triangle tri : triangles){
 			if (tri.center().y > split){
 				side1.add(tri);
@@ -64,39 +68,71 @@ public class BVH {
 				side0.add(tri);
 			}
 		}
-		if (side0.isEmpty()){
-			this.triangles = side1.toArray(Triangle[]::new);
-			return;
-		}
-		if (side1.isEmpty()){
-			this.triangles = side0.toArray(Triangle[]::new);
-			return;
-		}
-		node0 = new BVH(side0);
-		node1 = new BVH(side1);
 	}
-	public Pair<Vec3, Vec3> getIntersection(Vec3 origin, Vec3 direction){
-		if (!bounds.testIntersection(origin, direction)) return null;
-		Pair<Vec3, Vec3> intersection = null;
-		if (node0 != null) {
-			intersection = node0.getIntersection(origin, direction);
-		}
-		if (node1 != null){
-			Pair<Vec3, Vec3> localIntersection = node1.getIntersection(origin, direction);
-			if (localIntersection != null && (intersection == null || origin.dist(intersection.t0) > origin.dist(localIntersection.t0))){
-				intersection = localIntersection;
+	public static void splitZ(List<Triangle> triangles, double split, List<Triangle> side0, List<Triangle> side1){
+		for (Triangle tri : triangles){
+			if (tri.center().z > split){
+				side1.add(tri);
+			} else {
+				side0.add(tri);
 			}
 		}
-		if (triangles != null){
-			for (Triangle tri : triangles){
-				Pair<Vec3, Vec3> localIntersection = tri.getIntersection(origin, direction);
-				if (localIntersection == null) continue;
-				if (intersection == null || origin.dist(intersection.t0) > origin.dist(localIntersection.t0)){
+	}
+	
+	public Pair<Vec3, Vec3> getIntersection(Vec3 origin, Vec3 direction){
+		return getIntersection(origin, direction, false);
+	}
+	public Pair<Vec3, Vec3> getIntersection(Vec3 origin, Vec3 direction, boolean override){
+		if (override || bounds.testIntersection(origin, direction) < 0) return null;
+		Pair<Vec3, Vec3> intersection = null;
+		if (triangles == null){
+			if (node0 == null || node1 == null){
+				System.out.println("wtf");
+				return null;
+			}
+			BVH close = node0;
+			BVH far = node1;
+			double closeTime = close.testIntersection(origin, direction);
+			double farTime = far.testIntersection(origin, direction);
+			if (farTime < closeTime){
+				BVH temp = close;
+				close = far;
+				far = temp;
+				double tempTime = closeTime;
+				closeTime = farTime;
+				farTime = tempTime;
+			}
+			intersection = close.getIntersection(origin, direction, closeTime < 0);
+			if (intersection == null){
+				intersection = far.getIntersection(origin, direction, farTime < 0);
+			} else if (Math.abs(closeTime - farTime) < .01){
+				//close enough we should check both to be sure
+				Pair<Vec3, Vec3> localIntersection = far.getIntersection(origin, direction, farTime < 0);
+				if (localIntersection != null && origin.dist(intersection.t0) > origin.dist(localIntersection.t0)){
 					intersection = localIntersection;
 				}
 			}
+			
+			//if (node0 != null) {
+			//	intersection = node0.getIntersection(origin, direction);
+			//}
+			//if (node1 != null){
+			//	Pair<Vec3, Vec3> localIntersection = node1.getIntersection(origin, direction);
+			//	if (localIntersection != null && (intersection == null || origin.dist(intersection.t0) > origin.dist(localIntersection.t0))){
+			//		intersection = localIntersection;
+			//	}
+			//}
+		} else {
+			for (Triangle tri : triangles){
+				Pair<Vec3, Vec3> localIntersection = tri.getIntersection(origin, direction);
+				if (localIntersection == null || (intersection != null && origin.dist(intersection.t0) < origin.dist(localIntersection.t0)) || localIntersection.t1.dot(direction) > 0) continue;
+				intersection = localIntersection;
+			}
 		}
 		return intersection;
+	}
+	public double testIntersection(Vec3 origin, Vec3 direction){
+		return bounds.testIntersection(origin, direction);
 	}
 	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {
 		if (node0 != null) {
