@@ -27,21 +27,25 @@ public final class Transform {
 		inv = rot.transpose();
 		return this;
 	}
-	public void rotateY(double yaw){
+	public Transform rotateY(double yaw){
 		rot = Mat3.multiply(rot, rotationY(-yaw));
 		inv = rot.transpose();
+		return this;
 	}
-	public void rotateZ(double roll){
+	public Transform rotateZ(double roll){
 		rot = Mat3.multiply(rot, rotationZ(-roll));
 		inv = rot.transpose();
+		return this;
 	}
 	
-	public void translate(double x, double y, double z){
+	public Transform translate(double x, double y, double z){
 		Vec3 fixed = rot.transform(new Vec3(x, y, z));
 		translation = translation.add(fixed);
+		return this;
 	}
-	public void translateAbsolute(Vec3 vec){
+	public Transform translateAbsolute(Vec3 vec){
 		translation = translation.add(vec);
+		return this;
 	}
 	
 	public static Mat3 rotationX(double pitch) {

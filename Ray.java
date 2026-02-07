@@ -7,6 +7,7 @@ import java.util.Random;
 public final class Ray {
 	private Ray(){}
 	public static double[] trace(Vec3 origin, Vec3 direction, Environment env, int maxDepth, Random random){
+		final double EPSILON = 1e-8;
 		double[] rayColor = {1.0, 1.0, 1.0};
 		double[] incomingLight = {0.0, 0.0, 0.0};
 		
@@ -46,7 +47,6 @@ public final class Ray {
 			}
 			origin = intersection.pos;
 			direction = nextDirection;
-			
 			
 			//calculate colors
 			// emissionStrengh * emissionColor = emitted light, multiply with ray color to get the intersection of the colors
@@ -112,13 +112,13 @@ public final class Ray {
 			255
 		};
 		for (double x = x1, y = y1; x < x2; x+=dx, y+=dy){
-			if (x < 0 || x > width || y < 0 || y > height){
+			if (x < 0 || (int)x >= width || y < 0 || (int)y >= height){
 				break;
 			}
 			raster.setPixel((int)x, (int)y, color);
 		}
 		for (double x = x2, y = y2; x > x1; x-=dx, y-=dy){
-			if (x < 0 || x > width || y < 0 || y > height){
+			if (x < 0 || (int)x >= width || y < 0 || y >= height){
 				break;
 			}
 			raster.setPixel((int)x, (int)y, color);

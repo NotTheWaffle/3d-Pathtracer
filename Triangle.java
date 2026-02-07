@@ -20,8 +20,7 @@ public final class Triangle{
 		if (i2 < 0) i2 += points.size();
 		if (i3 < 0) i3 += points.size();
 		if (i1 < 0 || i2 < 0 || i3 < 0 || i1 >= points.size() || i2 >= points.size() || i3 >= points.size()){
-
-			System.out.println("error");
+			System.out.println("error triangle");
 			i1 = i2 = i3 = 0;
 		}
 		this(points.get(i1), points.get(i2), points.get(i3));

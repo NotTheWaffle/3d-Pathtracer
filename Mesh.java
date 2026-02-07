@@ -44,15 +44,21 @@ public class Mesh extends PhysicalObject{
 	}
 	//prolly too many overloads
 	public static Mesh loadObj(String filename){
-		return loadObj(filename, 0, 0, 0, 1, Material.SOLID);
+		return loadObj(filename, Material.SOLID);
 	}
 	public static Mesh loadObj(String filename, Material material){
-		return loadObj(filename, 0, 0, 0, 1, material);
+		return loadObj(filename, 0, material);
 	}
 	public static Mesh loadObj(String filename, double size, Material material){
-		return loadObj(filename, 0, 0, 0, size, material);
+		return loadObj(filename, new Transform(), size, material);
 	}
 	public static Mesh loadObj(String filename, double x, double y, double z, double size, Material material){
+		return loadObj(filename, new Transform().translate(x, y, z), size, material);
+	}
+	public static Mesh loadObj(String filename, Transform transform, double size, Material material){
+		return loadObj(filename, transform, size, material, true);
+	}
+	public static Mesh loadObj(String filename, Transform transform, double size, Material material, boolean maintainAspectratio){
 		System.out.println("Loading "+filename+"... ");
 		
 		List<Vec3> points = new ArrayList<>();
@@ -111,17 +117,29 @@ public class Mesh extends PhysicalObject{
 		double zrange = maxZ-minZ;
 		double maxRange = Math.max(Math.max(xrange,yrange),zrange);
 
-		double scale = (size == 0 ? 1 : size/maxRange);
 
-		xrange *= scale;
-		yrange *= scale;
-		zrange *= scale;
+		double xscale, yscale, zscale;
+		if (maintainAspectratio){
+			double scale = (size == 0 ? 1 : size/maxRange);
+			xscale = yscale = zscale = scale;
+		} else {
+			xscale = (size == 0 ? 1 : size/xrange);
+			yscale = (size == 0 ? 1 : size/yrange);
+			zscale = (size == 0 ? 1 : size/zrange);
+		}
+
+
+		xrange *= xscale;
+		yrange *= yscale;
+		zrange *= zscale;
 		for (int i = 0; i < points.size(); i++){
 			Vec3 p = points.get(i);
-			points.set(i, new Vec3(
-				(p.x - minX)*scale-xrange/2+x,
-				(p.y - minY)*scale-yrange/2+y,
-				(p.z - minZ)*scale-zrange/2+z
+			points.set(i, transform.applyTo(
+					new Vec3(
+					(p.x - minX)*xscale-xrange/2,
+					(p.y - minY)*yscale-yrange/2,
+					(p.z - minZ)*zscale-zrange/2
+				)
 			));
 		}
 		

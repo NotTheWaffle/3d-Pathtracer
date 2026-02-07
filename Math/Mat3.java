@@ -6,9 +6,17 @@ public class Mat3 {
 	public final double m20, m21, m22;
 	
 	public Mat3(){
-		this(0, 0, 0,
+		this(
+			0, 0, 0,
 			0, 0, 0,
 			0, 0, 0
+		);
+	}
+	public Mat3(double d){
+		this(
+			d, 0, 0,
+			0, d, 0,
+			0, 0, d
 		);
 	}
 	public Mat3(double d00, double d01, double d02,

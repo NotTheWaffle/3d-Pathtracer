@@ -9,7 +9,7 @@ public class Main {
 	public static void main(String[] args){
 		String model = "Models/"+"dragon1mil"+".obj";
 		//model = "compact.obj";
-		int size = 1920;
+		int size = 1024;
 		if (args.length > 0){
 			model = args[0];
 			size = Integer.parseInt(args[1]);
@@ -18,7 +18,7 @@ public class Main {
 
 		Environment env = new Environment();
 		
-		env.add(Mesh.loadObj(model, 0, .35, 0, 2, Material.MIRROR));
+		env.add(Mesh.loadObj(model, new Transform(), 1, Material.PLASTIC));
 
 		// sun
 		env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
@@ -34,7 +34,7 @@ public class Main {
 		env.add(Mesh.rectangle(0, -.5, 0, 10, Material.SOLID));
 		
 		
-		runGame(new RaytracedGame(1920, 1080, Math.PI*.5, 1, .001, env));
+		runGame(new RaytracedGame(size, size, Math.PI*.5, 1, 0, env));
 	}
 	public static Thread runGame(final Game game){
 		Thread t1 = new Thread(

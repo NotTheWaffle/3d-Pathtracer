@@ -38,13 +38,12 @@ public class RaytracedGame extends Game{
 
 	public RaytracedGame(int width, int height, double fov, double focusDepth, double focus, Environment env){
 		super(width, height);
-		System.out.println(width+" "+height);
+		
 		cx = width / 2;
 		cy = height / 2;
 
 		this.env = env;
-		cam = new Transform();
-		cam.translateAbsolute(cam.getForwardVector().mul(-1));
+		cam = new Transform().translateAbsolute(new Vec3(0, 0, -1));
 	
 
 		this.focalLength = (double) width / (2 * Math.tan(fov/2));
