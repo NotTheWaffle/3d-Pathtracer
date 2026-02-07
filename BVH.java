@@ -105,23 +105,13 @@ public class BVH {
 			intersection = close.getIntersection(origin, direction, closeTime < 0);
 			if (intersection == null){
 				intersection = far.getIntersection(origin, direction, farTime < 0);
-			} else if (Math.abs(closeTime - farTime) < .01){
+			} else if (false || Math.abs(closeTime - farTime) < .01){
 				//close enough we should check both to be sure
 				Pair<Vec3, Vec3> localIntersection = far.getIntersection(origin, direction, farTime < 0);
 				if (localIntersection != null && origin.dist(intersection.t0) > origin.dist(localIntersection.t0)){
 					intersection = localIntersection;
 				}
 			}
-			
-			//if (node0 != null) {
-			//	intersection = node0.getIntersection(origin, direction);
-			//}
-			//if (node1 != null){
-			//	Pair<Vec3, Vec3> localIntersection = node1.getIntersection(origin, direction);
-			//	if (localIntersection != null && (intersection == null || origin.dist(intersection.t0) > origin.dist(localIntersection.t0))){
-			//		intersection = localIntersection;
-			//	}
-			//}
 		} else {
 			for (Triangle tri : triangles){
 				Pair<Vec3, Vec3> localIntersection = tri.getIntersection(origin, direction);
@@ -132,6 +122,7 @@ public class BVH {
 		return intersection;
 	}
 	public double testIntersection(Vec3 origin, Vec3 direction){
+		direction = direction.normalize();
 		return bounds.testIntersection(origin, direction);
 	}
 	public void render(WritableRaster raster, double focalLength, int cx, int cy, double[][] zBuffer, Transform cam) {

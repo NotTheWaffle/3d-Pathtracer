@@ -14,8 +14,8 @@ public abstract class PhysicalObject {
 	public final double specularityChance;
 
 	public PhysicalObject(Material material){
-		this.reflectionColor = new double[] {material.reflectionColor.getRed()/255.0, material.reflectionColor.getGreen()/255.0, material.reflectionColor.getBlue()/255.0};
-		this.emissionColor =new double[] {material.emissionColor.getRed()/255.0, material.emissionColor.getGreen()/255.0, material.emissionColor.getBlue()/255.0};
+		this.reflectionColor = material.reflectionColor;
+		this.emissionColor = material.emissionColor;
 		this.emissionStrength = material.emissionStrength;
 		this.specularity = material.specularity;
 		this.transparency = material.transparency;

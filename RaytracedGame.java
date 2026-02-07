@@ -166,6 +166,8 @@ public class RaytracedGame extends Game{
 		g2d.setColor(Color.RED);
 		g2d.drawString("Render (ms):"+renderTime/1_000_000.0,0,20);
 		g2d.drawString("Samples: "+pixelBuffer[0][0].samples, 0, 40);
+		g2d.drawString(Pixel.count+" vs", 0, 60);
+		g2d.drawString(Pixel.count2+" ",0 ,80);
 	}
 	
 	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster, int samples){
@@ -186,9 +188,9 @@ public class RaytracedGame extends Game{
 				int[] color = new int[3];
 				for (int i = 0; i < samples; i++){
 					double[] col = Ray.trace(origin, vector, env, 5, random);
-					color[0] += (int) (255 * col[0]);
-					color[1] += (int) (255 * col[1]);
-					color[2] += (int) (255 * col[2]);
+					color[0] += (int) (255.0 * col[0]);
+					color[1] += (int) (255.0 * col[1]);
+					color[2] += (int) (255.0 * col[2]);
 				}
 
 				pixel.addSample(color, samples);

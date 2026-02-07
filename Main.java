@@ -1,13 +1,11 @@
 
 import Game.Game;
 import Game.Window;
-import Math.Vec3;
-import java.awt.Color;
 
 
 public class Main {
 	public static void main(String[] args){
-		String model = "Models/"+"dragon1mil"+".obj";
+		String model = "Models/"+"heavytest"+".obj";
 		//model = "compact.obj";
 		int size = 1024;
 		if (args.length > 0){
@@ -18,20 +16,22 @@ public class Main {
 
 		Environment env = new Environment();
 		
-		env.add(Mesh.loadObj(model, new Transform(), 1, Material.PLASTIC));
+		env.add(Mesh.loadObj("Models/"+"heavytest"+".obj", new Transform(), 1, Material.SOLID));
+		env.add(Mesh.loadObj("Models/"+"heavy"+".obj", new Transform().translate(-1, 0, 0), 1, Material.SOLID));
+		env.add(Mesh.loadObj("Models/"+"heavyfixed"+".obj", new Transform().translate(1, 0, 0), 1, Material.SOLID));
 
 		// sun
-		env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
+	//	env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
 		
-		env.add(new Sphere(new Vec3(0, 0, 2.5), 1, Material.solid(Color.RED)));
-		env.add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.solid(Color.GREEN)));
-		env.add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.solid(Color.BLUE)));
+	//	env.add(new Sphere(new Vec3(0, 0, 2.5), 1, Material.solid(Color.RED)));
+	//	env.add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.solid(Color.BLUE)));
+	//	env.add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.solid(Color.GREEN)));
 
 
 
 
 		// floor
-		env.add(Mesh.rectangle(0, -.5, 0, 10, Material.SOLID));
+		env.add(new RectangularPrism(0, -1.5, 0, 20, 1, 20, Material.SOLID, 0));
 		
 		
 		runGame(new RaytracedGame(size, size, Math.PI*.5, 1, 0, env));
