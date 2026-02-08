@@ -15,7 +15,9 @@ public class Viewport {
 	public final int screenHeight;
 	public final int cx;
 	public final int cy;
-	
+	public Viewport(double fov, int size){
+		this(fov, 0, 0, size, size);
+	}
 	public Viewport(double fov, double focusDistance, double focus, int screenWidth, int screenHeight){
 		this.fov = fov;
 		this.focusDistance = focusDistance;

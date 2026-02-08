@@ -66,10 +66,13 @@ public class Mesh extends PhysicalObject{
 		double minX, minY, minZ, maxX, maxY, maxZ;
 		minX = minY = minZ = Double.POSITIVE_INFINITY;
 		maxX = maxY = maxZ = Double.NEGATIVE_INFINITY;
-		
+		boolean compact = false;
 		try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
 			List<Integer> pointBuffer = new ArrayList<>();
 			for (String line = reader.readLine(); line != null; line = reader.readLine()){
+				if (line.equals("# compacted")){
+					compact = true;
+				}
 				if (line.length() == 0) continue;
 				if (line.charAt(0) == '#') continue;
 				char type = line.charAt(0);
@@ -105,7 +108,7 @@ public class Mesh extends PhysicalObject{
 				}
 			}
 		} catch (IOException e){
-			System.out.println("Failed to load");
+			System.out.println("Failed to load "+filename);
 			return new Mesh(new ArrayList<>(), Material.SOLID);
 		}
 		System.out.println("  Loaded "+indexedTriangles.size()+" triangles");
@@ -150,20 +153,19 @@ public class Mesh extends PhysicalObject{
 			triangles.add(new Triangle(itri.i1, itri.i2, itri.i3, points));
 		}
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter("compact.obj"))){
-			for (Vec3 point : points){
-				writer.write(String.format("v %.6f %.6f %.6f%n", point.x, point.y, point.z));
+		if (!compact){
+			System.out.println("Compacting "+filename);
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))){
+				writer.write("# compacted\n");
+				for (Vec3 point : points){
+					writer.write(String.format("v %.6f %.6f %.6f%n", point.x, point.y, point.z));
+				}
+				for (IndexedTriangle itri : indexedTriangles){
+					writer.write(String.format("f %d %d %d%n", itri.i1 + 1, itri.i2 + 1, itri.i3 + 1));
+				}
+			} catch (IOException e){
+				System.out.println("Failed to save compacted .obj");
 			}
-			for (IndexedTriangle itri : indexedTriangles){
-				writer.write(String.format(
-					"f %d %d %d%n",
-					itri.i1 + 1,
-					itri.i2 + 1,
-					itri.i3 + 1
-				));
-			}
-		} catch (IOException e){
-			System.out.println("faile");
 		}
 
 		return new Mesh(triangles, material);

@@ -8,7 +8,7 @@ import java.util.Random;
 public final class Ray {
 	private Ray(){}
 	public final static PhysicalObject sun = new Sphere(null, 0, Material.LIGHT);
-	public final static Vec3 sunVec = new Vec3(0, 1, 0).normalize();
+	public final static Vec3 sunVec = new Vec3(1, 1, 0).normalize();
 	private final static PhysicalObject err = new Sphere(null, 0, new Material(1, Color.GREEN, Color.BLACK, 0, 0, 0));
 	public static double[] trace(Vec3 origin, Vec3 direction, Environment env, int maxDepth, Random random){
 		final double EPSILON = 1e-8;

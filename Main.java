@@ -1,40 +1,21 @@
 
 import Game.Game;
 import Game.Window;
-import Math.Vec3;
-import java.awt.Color;
 
 
 public class Main {
 	public static void main(String[] args){
-		String model = "Models/"+"dragon60k"+".obj";
-		//model = "compact.obj";
+		String model = "Models/"+"trispervertex"+".obj";
 		int size = 512;
-		if (args.length > 0){
-			model = args[0];
-			size = Integer.parseInt(args[1]);
-		}
-
 
 		Environment env = new Environment();
 		
-		env.add(Mesh.loadObj(model, new Transform(), 1, Material.PLASTIC));
+		env.add(Mesh.loadObj(model, new Transform(), 2, Material.MIRROR, true));
 
-		// sun
-	//	env.add(new Sphere(new Vec3(0, 20, 15), 20, Material.LIGHT));
+
+		env.addStanfordBox(2.5, 3);
 		
-		env.add(new Sphere(new Vec3(0, 0, 2.5), 1, Material.solid(Color.RED)));
-		env.add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.solid(Color.BLUE)));
-		env.add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.solid(Color.GREEN)));
-
-
-
-
-		// floor
-		env.add(new RectangularPrism(0, -1.5, 0, 20, 1, 20, Material.SOLID, 0));
-		
-		
-		runGame(new PathTracedGame(new Viewport(Math.PI*.5, 0, 0, size, size), env));
+		runGame(new PathTracedGame(new Viewport(Math.PI*.5, size), env));
 	}
 	public static Thread runGame(final Game game){
 		Thread t1 = new Thread(
