@@ -154,7 +154,8 @@ public class PathTracedGame extends Game{
 		g2d.drawString(camera.transform.toString(), 0, 60);
 	}
 	
-	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster, int samples){
+	private void raytraceRange(int x1, int y1, int x2, int y2, WritableRaster raster, final int samples){
+		final double EPSILON = 1e-8;
 		Random random = ThreadLocalRandom.current();
 		Vec3 origin = camera.transform.translation;
 		for (int x = x1; x < x2; x += 1){
@@ -170,6 +171,7 @@ public class PathTracedGame extends Game{
 				
 				Pixel pixel = pixelBuffer[y][x];
 				int[] color = new int[3];
+				
 				for (int i = 0; i < samples; i++){
 					double[] col = Ray.trace(origin, vector, env, 10, random);
 					color[0] += (int) (255.0 * col[0]);
@@ -178,8 +180,6 @@ public class PathTracedGame extends Game{
 				}
 
 				pixel.addSample(color, samples);
-				color = pixel.getColor();
-				// if (color[0] > 255 || color[1] > 255 || color[2] > 255 || color[0] < 0 || color[1] < 0 || color[2] < 0) System.out.println("bad");
 				raster.setPixel(x, y, pixel.getColor());
 			}
 		}

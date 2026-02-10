@@ -99,11 +99,11 @@ public class BVH {
 				closeTime = farTime;
 				farTime = tempTime;
 			}
+			
 			intersection = closeTime < 0 ? null : close.getIntersection(origin, direction);
 			if (intersection == null){
 				intersection = farTime < 0 ? null : far.getIntersection(origin, direction);
 			} else if (intersection.t0.dist(origin) > farTime){
-				//close enough we should check both to be sure
 				Pair<Vec3, Vec3> localIntersection = farTime < 0 ? null : far.getIntersection(origin, direction);
 				if (localIntersection != null && origin.dist(intersection.t0) > origin.dist(localIntersection.t0)){
 					intersection = localIntersection;

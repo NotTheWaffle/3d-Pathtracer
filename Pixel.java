@@ -1,30 +1,32 @@
+
+
 public class Pixel {
-	public int[] runningColor;
+	private int rColor;
+	private int gColor;
+	private int bColor;
 	public int samples;
+
+	public Pixel(){
+		this(new double[3], 0);
+	}
 	public Pixel(double[] color, int weight){
-		this.runningColor = new int[] {
-			(int) (255 * color[0]),
-			(int) (255 * color[1]),
-			(int) (255 * color[2])
-		};
+		this.rColor = (int) (255 * color[0]);
+		this.gColor = (int) (255 * color[1]);
+		this.bColor = (int) (255 * color[2]);
 		this.samples = weight;
 	}
-	public Pixel(){
-		this.runningColor = new int[3];
-		this.samples = 0;
-	}
 	public void addSample(int[] color, int weight){
-		this.runningColor[0] += color[0];
-		this.runningColor[1] += color[1];
-		this.runningColor[2] += color[2];
+		this.rColor += color[0];
+		this.gColor += color[1];
+		this.bColor += color[2];
 		this.samples+=weight;
 	}
 	public int[] getColor(){
 		if (samples == 0) return new int[] {0, 0, 0, 255};
-		return new int[] {runningColor[0]/samples, runningColor[1]/samples, runningColor[2]/samples, 255};
+		return new int[] {rColor/samples, gColor/samples, bColor/samples, 255};
 	}
 	public void clear(){
-		runningColor[0] = runningColor[1] = runningColor[2] = 0;
+		rColor = gColor = bColor = 0;
 		samples = 0;
 	}
 }

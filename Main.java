@@ -5,11 +5,11 @@ import Game.Window;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "Models/"+"max_planck"+".obj";
+		String model = "Models/"+"donut"+".obj";
 		int size = 512;
-
+		
 		Environment env = new Environment();
-	//	env.add(MeshLoader.loadObj(model, new Transform(), 1, Material.MIRROR, true));
+		env.add(MeshLoader.loadObj(model, new Transform(), 1, Material.MIRROR, true));
 
 		env.addSphereTest();
 		env.addStanfordBox(2, 2.1);
