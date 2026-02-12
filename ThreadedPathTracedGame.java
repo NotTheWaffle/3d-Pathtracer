@@ -14,7 +14,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.imageio.ImageIO;
 
-public class PathTracedGame extends Game{
+public class ThreadedPathTracedGame extends Game{
 	
 	// this is only for rasterized rendering
 	private final double[][] zBuffer;
@@ -30,7 +30,7 @@ public class PathTracedGame extends Game{
 	
 	public static long logicTime;
 
-	public PathTracedGame(Viewport camera, Environment env){
+	public ThreadedPathTracedGame(Viewport camera, Environment env){
 		super(camera.screenWidth, camera.screenHeight);
 		
 		this.env = env;
@@ -117,10 +117,11 @@ public class PathTracedGame extends Game{
 			for (int y = 0; y < threadSqrt; y++){
 				final int x_f = x;
 				final int y_f = y;
-				Thread t = new Thread(() -> {
+				Thread t = Thread.ofVirtual().factory().newThread(() -> {
 					raytraceRange(width*x_f/threadSqrt, height*y_f/threadSqrt, width*(x_f+1)/threadSqrt, height*(y_f+1)/threadSqrt, raster, samples);
 				});
 				t.start();
+				
 				threads.add(t);
 			}
 		}
