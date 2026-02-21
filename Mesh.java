@@ -1,5 +1,4 @@
 
-import Math.Pair;
 import Math.Vec3;
 import java.awt.image.WritableRaster;
 import java.util.List;
@@ -28,8 +27,8 @@ public class Mesh extends PhysicalObject{
 	}
 	@Override
 	public Intersection getIntersection(Vec3 origin, Vec3 direction){
-		Pair<Vec3, Vec3> intersection = bvh.getIntersection(origin, direction);
+		Intersection intersection = bvh.getIntersection(origin, direction);
 		if (intersection == null) return null;
-		return new Intersection(intersection.t0, this, intersection.t1);
+		return new Intersection(intersection.pos, this, intersection.normal, intersection.backface);
 	}
 }

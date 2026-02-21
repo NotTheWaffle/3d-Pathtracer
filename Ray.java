@@ -7,7 +7,7 @@ import java.util.Random;
 
 public final class Ray {
 	private Ray(){}
-	private final static PhysicalObject err = new Sphere(null, 0, new Material(1, Color.GREEN, Color.BLACK, 0, 0, 0));
+	private final static PhysicalObject err = new Sphere(null, 0, Material.light(Color.GREEN));
 	public static double[] trace(Vec3 origin, Vec3 direction, Environment env, int maxDepth, Random random){
 		double[] rayColor = {1.0, 1.0, 1.0};
 		double[] incomingLight = {0.0, 0.0, 0.0};
@@ -19,7 +19,7 @@ public final class Ray {
 				Intersection localIntersection = p.getIntersection(origin, direction);
 				if (localIntersection == null || (intersection != null && origin.dist(intersection.pos) < origin.dist(localIntersection.pos))) continue;
 				if (localIntersection.normal.dot(direction) > 0){
-					localIntersection = new Intersection(localIntersection.pos, err, localIntersection.normal);
+					localIntersection = new Intersection(localIntersection.pos, err, localIntersection.normal, false);
 				}
 				intersection = localIntersection;
 			}
@@ -27,7 +27,7 @@ public final class Ray {
 			// background light
 			if (intersection == null) {
 				if (direction.dist(env.sunVec) < .75){
-					intersection = new Intersection(Vec3.ZERO_VEC, env.sun, Vec3.ZERO_VEC);
+					intersection = new Intersection(Vec3.ZERO_VEC, env.sun, Vec3.ZERO_VEC, false);
 				} else {
 					break;
 				}

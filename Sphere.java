@@ -5,16 +5,17 @@ import java.awt.image.WritableRaster;
 public class Sphere extends PhysicalObject{
 	public final Vec3 point;
 	public final double radius;
+
 	public Sphere(Vec3 point, double radius, Material material){
 		super(material);
 		this.point = point;
 		this.radius = radius;
 	}
+
 	@Override
 	public void render(WritableRaster raster, double[][] zBuffer, Viewport camera) {
 		Vec3 p = camera.applyTo(this.point);
 		if (p.z < 0) return;
-		
 		
 		int screenX = (int) camera.getX(p);
 		int screenY = (int) camera.getY(p);
@@ -39,7 +40,6 @@ public class Sphere extends PhysicalObject{
 				int dx = x-screenX;
 				int dy = y-screenY;
 				if (dx * dx + dy * dy < projectedRadius * projectedRadius) {
-
 					if (p.z < zBuffer[x][y]) {
 						zBuffer[x][y] = p.z;
 						raster.setPixel(x, y, rgb);
@@ -48,9 +48,9 @@ public class Sphere extends PhysicalObject{
 			}
 		}
 	}
+	
 	@Override
 	public Intersection getIntersection(Vec3 rayOrigin, Vec3 rayVector){
-		final double EPSILON = 1e-8;
 		Vec3 l = rayOrigin.sub(point);
 		
 		double b = 2 * rayVector.dot(l);
@@ -72,6 +72,8 @@ public class Sphere extends PhysicalObject{
 
 		if (t == Double.POSITIVE_INFINITY) return null;
 		Vec3 intersectionPoint = rayOrigin.add(rayVector.mul(t));
-		return new Intersection(intersectionPoint, this, intersectionPoint.sub(point).normalize());
+		Vec3 normal = intersectionPoint.sub(point).normalize();
+		
+		return new Intersection(intersectionPoint, this, normal, normal.dot(rayVector) > 0);
 	}
 }

@@ -5,21 +5,28 @@ import Game.Window;
 
 public class Main {
 	public static void main(String[] args){
-		String model = "Models/"+"dragon1mil"+".obj";
 		int size = 512;
 		
 		Environment env = new Environment();
-		env.add(MeshLoader.loadObj(model, new Transform(), 2, Material.MIRROR, true));
+		env.add(MeshLoader.loadObj("Models/"+"dragon1mil"+".obj", new Transform().rotateX(Math.PI/2), 4, Material.SOLID, true));
 
-		env.addSphereTest();
+		//env.addSphereTest();
 		//env.addCornellBox(2, 2.1);
+		env.add(new RectangularPrism(0, -1.5, 0, 20, 1, 20, Material.SOLID, 0));
+
+	//	env.add(new Sphere(new Vec3(0, 0, 0), 1, Material.SOLID));
+
+		env.addHueSpheres(8, 1);
+		Viewport camera = new Viewport(Math.PI*.5, 1, .001, 1920, 1080);
+		camera.rotateX(-Math.PI/2);
 		
-		runGame(new AsyncVirtualThreadedPathtracedGame(new Viewport(Math.PI*.5, 1920, 1080), env));
+		runGame(new AsyncVirtualThreadedPathtracedGame(camera, env));
 	}
+	
 	public static Thread startGame(final Game game){
-		Thread t1 = new Thread(() -> runGame(game));
-		t1.start();
-		return t1;
+		Thread thread = new Thread(() -> runGame(game));
+		thread.start();
+		return thread;
 	}
 	public static void runGame(final Game game){
 		final Window window = new Window(game);

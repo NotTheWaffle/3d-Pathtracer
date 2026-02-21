@@ -1,13 +1,12 @@
 
-import Math.Pair;
 import Math.Vec3;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BVH {
-	public static final int MAX_TRIANGLES = 20;
-	public static final int MAX_DEPTH = 20;
+	public static final int MAX_TRIANGLES = 10;
+	public static final int MAX_DEPTH = 30;
 	private BVH node0;
 	private BVH node1;
 	private Triangle[] triangles;
@@ -79,9 +78,9 @@ public class BVH {
 		}
 	}
 	
-	public Pair<Vec3, Vec3> getIntersection(Vec3 origin, Vec3 direction){
+	public Intersection getIntersection(Vec3 origin, Vec3 direction){
 		if (bounds.testIntersection(origin, direction) < 0) return null;
-		Pair<Vec3, Vec3> intersection = null;
+		Intersection intersection = null;
 		if (triangles == null){
 			if (node0 == null || node1 == null){
 				System.out.println("wtf");
@@ -103,16 +102,16 @@ public class BVH {
 			intersection = closeTime < 0 ? null : close.getIntersection(origin, direction);
 			if (intersection == null){
 				intersection = farTime < 0 ? null : far.getIntersection(origin, direction);
-			} else if (intersection.t0.dist(origin) > farTime){
-				Pair<Vec3, Vec3> localIntersection = farTime < 0 ? null : far.getIntersection(origin, direction);
-				if (localIntersection != null && origin.dist(intersection.t0) > origin.dist(localIntersection.t0)){
+			} else if (intersection.pos.dist(origin) > farTime){
+				Intersection localIntersection = farTime < 0 ? null : far.getIntersection(origin, direction);
+				if (localIntersection != null && origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
 					intersection = localIntersection;
 				}
 			}
 		} else {
 			for (Triangle tri : triangles){
-				Pair<Vec3, Vec3> localIntersection = tri.getIntersection(origin, direction);
-				if (localIntersection == null || (intersection != null && origin.dist(intersection.t0) < origin.dist(localIntersection.t0)) || localIntersection.t1.dot(direction) > 0) continue;
+				Intersection localIntersection = tri.getIntersection(origin, direction);
+				if (localIntersection == null || (intersection != null && origin.dist(intersection.pos) < origin.dist(localIntersection.pos))) continue;
 				intersection = localIntersection;
 			}
 		}
@@ -122,6 +121,7 @@ public class BVH {
 		return bounds.testIntersection(origin, direction.normalize());
 	}
 	public void render(WritableRaster raster, double[][] zBuffer, Viewport camera) {
+		if (null == null) return;
 		if (node0 != null) {
 			node0.render(raster, zBuffer, camera);
 		}

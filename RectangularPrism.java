@@ -68,7 +68,7 @@ public final class RectangularPrism extends PhysicalObject{
 		if (tenter - texit > EPSILON || tenter < 0){
 			return null;
 		}
-		return new Intersection(origin.add(direction.mul(tenter)), this, normal);
+		return new Intersection(origin.add(direction.mul(tenter)), this, normal, false);
 	}
 	
 	@Override

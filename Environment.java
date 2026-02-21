@@ -2,20 +2,25 @@
 import Math.Vec3;
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Environment{
 	
-	public final PhysicalObject sun = new Sphere(null, 0, Material.LIGHT);
-	public final Vec3 sunVec = new Vec3(0, 1, 1).normalize();
+	public final PhysicalObject sun;
+	public final Vec3 sunVec;
 	public final List<PhysicalObject> physicalObjects;
 	public Environment(){
-		physicalObjects = new ArrayList<>();
+		this(false);
 	}
-	public Environment(PhysicalObject... mesh){
-		this();
-		physicalObjects.addAll(Arrays.asList(mesh));
+	public Environment(boolean sun){
+		physicalObjects = new ArrayList<>();
+		if (sun){
+			this.sun = new Sphere(null, 0, Material.LIGHT);
+			this.sunVec = new Vec3(0, 1, 1).normalize();
+		} else {
+			this.sun = new Sphere(null, 0, Material.solid(Color.BLACK));
+			this.sunVec = new Vec3(0, 0, 0);
+		}
 	}
 	public void addCornellBox(double innerWidth, double outerWidth){
 		//bottom
@@ -36,6 +41,12 @@ public class Environment{
 		add(new Sphere(new Vec3(2.5, 0, 0), 1, Material.solid(Color.BLUE)));
 		add(new Sphere(new Vec3(-2.5, 0, 0), 1, Material.solid(Color.GREEN)));
 		add(new RectangularPrism(0, -1.5, 0, 20, 1, 20, Material.SOLID, 0));
+	}
+	public void addHueSpheres(int count, double radius){
+		for (int i = 0; i < count; i++){
+			Color color = new Color(Color.HSBtoRGB((float)i/count, 1, 1));
+			add(new Sphere(Transform.rotationY(i*2*Math.PI/count).transform(new Vec3(3, 0, 0)), radius, Material.light(color)));
+		}
 	}
 	public void add(PhysicalObject object){
 		physicalObjects.add(object);

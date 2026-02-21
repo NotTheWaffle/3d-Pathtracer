@@ -94,9 +94,8 @@ public class MeshLoader{
 					if (line.charAt(1) == 'n' || line.charAt(1) == 't') continue;
 					
 					String[] rawValues = line.split(" ");
-					Vec3 point = new Vec3(Double.parseDouble(rawValues[1]), Double.parseDouble(rawValues[2]), Double.parseDouble(rawValues[3]));
 					
-					points.add(point);
+					points.add(new Vec3(Double.parseDouble(rawValues[1]), Double.parseDouble(rawValues[2]), Double.parseDouble(rawValues[3])));
 				} else if (type == 'f'){
 					String[] thesePoints = line.split(" ");
 					pointBuffer.clear();
@@ -147,7 +146,7 @@ public class MeshLoader{
 					String[] facePointsRaw = line.split(" ");
 					int[] facePoints = new int[facePointsRaw.length-1];
 					for (int i = 0; i < facePoints.length; i++){
-						facePoints[i] = Integer.parseInt(facePointsRaw[i+1]);
+						facePoints[i] = Integer.parseInt(facePointsRaw[i+1].split("/")[0]);
 					}
 					faces.add(facePoints);
 				}

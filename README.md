@@ -13,5 +13,3 @@ has
   - \[ and \] to toggle pathtracing
   - k to save it to a png named saved.png
   - automatic file compacting of meshes to remove texture and normal stuff cuz i don't use them
-ok so this turbo-crashed my computer so beware running it or something.
-probably a one time fluke but like... idk

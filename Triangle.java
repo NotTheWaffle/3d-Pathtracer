@@ -1,10 +1,10 @@
 
-import Math.Pair;
 import Math.Vec3;
 import java.awt.image.WritableRaster;
 import java.util.List;
 
 public final class Triangle{
+	public final static double EPSILON = 1e-8;
 	public final Vec3 p1;
 	public final Vec3 p2;
 	public final Vec3 p3;
@@ -16,13 +16,6 @@ public final class Triangle{
 		this.normal = normal();
 	}
 	public Triangle(int i1, int i2, int i3, List<Vec3> points){
-		if (i1 < 0) i1 += points.size();
-		if (i2 < 0) i2 += points.size();
-		if (i3 < 0) i3 += points.size();
-		if (i1 < 0 || i2 < 0 || i3 < 0 || i1 >= points.size() || i2 >= points.size() || i3 >= points.size()){
-			System.out.println("error triangle");
-			i1 = i2 = i3 = 0;
-		}
 		this(points.get(i1), points.get(i2), points.get(i3));
 	}
 	public Vec3 center(){
@@ -98,14 +91,10 @@ public final class Triangle{
 	private static double edge(int x1, int y1, int x2, int y2, int x, int y) {
 		return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);
 	}
-	public Pair<Vec3, Vec3> getIntersection(Vec3 rayOrigin, Vec3 rayVector){
-		final double EPSILON = 1e-8;
-		// the ray should be pointing in the opposite direction as the normal, else they shouldn't've interescted
-		if (rayVector.dot(normal) > 0) return null;
-
+	public Intersection getIntersection(Vec3 rayOrigin, Vec3 rayDirection){
 		Vec3 edge1 = p2.sub(p1);
 		Vec3 edge2 = p3.sub(p1);
-		Vec3 h = rayVector.cross(edge2);
+		Vec3 h = rayDirection.cross(edge2);
 
 		double a = edge1.dot(h);
 
@@ -118,14 +107,14 @@ public final class Triangle{
 		if (u < 0.0 || u > 1.0) return null;
 
 		Vec3 q = s.cross(edge1);
-		double v = f * rayVector.dot(q);
+		double v = f * rayDirection.dot(q);
 
 		if (v < 0.0 || u + v > 1.0) return null;
 
 		double t = f * edge2.dot(q);
 		if (t < EPSILON) return null;
 
-		return new Pair<>(rayVector.mul(t).add(rayOrigin), this.normal);
+		return new Intersection(rayDirection.mul(t).add(rayOrigin), null, this.normal, rayDirection.dot(normal) > 0);
 	}
 
 	@Override

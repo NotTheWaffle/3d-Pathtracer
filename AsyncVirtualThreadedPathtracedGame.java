@@ -35,7 +35,6 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 		
 		this.env = env;
 		this.camera = camera;
-		camera.transform.translateAbsolute(new Vec3(0, 0, -1));
 	
 		zBuffer = new double[width][height];
 
@@ -72,8 +71,19 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 		if (input.keys['Q']) 				{resetPixelBuffer(); camera.rotateZ(-relativeRotSpeed);}
 		if (input.keys['E']) 				{resetPixelBuffer(); camera.rotateZ( relativeRotSpeed);}
 
-		if (input.keys['['] && !raytrace) 	{raytrace = true; resetPixelBuffer(); beginPathtracing(16);}
-		if (input.keys[']'] && raytrace) 	{raytrace = false; stopPathtracing();}
+		if (input.keys['[']) {
+			if (raytrace){
+				resetPixelBuffer();
+			} else {
+				raytrace = true;
+				resetPixelBuffer();
+				beginPathtracing(16);
+			}
+		}
+		if (input.keys[']']) {
+			raytrace = false;
+			stopPathtracing();
+		}
 
 		logicTime = System.nanoTime()-start;
 	}
@@ -148,9 +158,8 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 				threads.add(t);
 			}
 		}
-
 		threads.forEach(t -> Thread.startVirtualThread(t));
-		System.out.println("Started "+ threads.size()+" threads");
+		System.out.println("Started "+ threads.size()+" virtual threads");
 	}
 	private void stopPathtracing(){
 		if (threads == null) threads = new ArrayList<>();
