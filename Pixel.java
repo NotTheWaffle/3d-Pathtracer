@@ -5,6 +5,7 @@ public class Pixel {
 	private int gColor;
 	private int bColor;
 	private int samples;
+	private boolean reset;
 
 	public Pixel(){
 		this(new float[3], 0);
@@ -16,6 +17,9 @@ public class Pixel {
 		this.samples = weight;
 	}
 	public void addSample(float[] color){
+		if (reset){
+			clear();
+		}
 		rColor += (int) (255.0 * color[0]);
 		gColor += (int) (255.0 * color[1]);
 		bColor += (int) (255.0 * color[2]);
@@ -34,6 +38,10 @@ public class Pixel {
 	public void clear(){
 		rColor = gColor = bColor = 0;
 		samples = 0;
+		reset = false;
+	}
+	public void reset(){
+		reset = true;
 	}
 	public int getSamples(){
 		return samples;

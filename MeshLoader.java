@@ -23,7 +23,7 @@ public class MeshLoader{
 		System.out.println("Loading a implicit Equation");
 		for (float x = box.minX; x < box.maxX; x += d) {
 			for (float y = box.minY; y < box.maxY; y += d) {
-				for (float z = box.minZ; z < box.maxZ; z += d) {
+		outer:	for (float z = box.minZ; z < box.maxZ; z += d) {
 					// cube corners
 					Vec3[] p = new Vec3[8];
 					p[0] = new Vec3(x,   y,   z  );
@@ -38,6 +38,9 @@ public class MeshLoader{
 					float[] v = new float[8];
 					for (int i = 0; i < 8; i++){
 						v[i] = f.apply(p[i].x, p[i].y, p[i].z);
+						if (Float.isNaN(v[i])){
+							continue outer;
+						}
 					}
 
 					int cubeIndex = 0;

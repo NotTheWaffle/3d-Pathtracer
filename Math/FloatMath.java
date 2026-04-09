@@ -1,5 +1,7 @@
 package Math;
 
+import java.util.Random;
+
 public class FloatMath {
 	public static final float PI = (float) Math.PI;
 	public static float sqrt(float f){
@@ -19,5 +21,8 @@ public class FloatMath {
 	}
 	public static float tan(float a){
 		return (float) Math.tan(a);
+	}
+	public static float randomGaussian(Random random){
+		return sqrt(-2*(float) Math.log(random.nextFloat())) * cos(2*PI*random.nextFloat());
 	}
 }

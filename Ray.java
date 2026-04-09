@@ -87,7 +87,7 @@ public final class Ray {
 				if (intersection.backface){
 					normal = normal.mul(-1);
 				}
-				Vec3 diffuseDirection = normal.add(getDiffuseReflectionVector(normal, random)).normalize();
+				Vec3 diffuseDirection = getCosineWeightedDiffuseReflectionVector(normal, random);
 				
 				if (random.nextFloat() < material.specularityChance){
 					Vec3 specularDirection = getSpecularReflectionVector(rayDirection, normal);
@@ -128,9 +128,16 @@ public final class Ray {
 	}
 
 	private static Vec3 getDiffuseReflectionVector(Vec3 normal, Random random){
-		Vec3 vec = Vec3.random(random).normalize();
+		Vec3 vec = Vec3.randomUnit(random).normalize();
 		if (vec.dot(normal) < 0) vec = vec.mul(-1);
 		return vec;
+	}
+
+	private static Vec3 getCosineWeightedDiffuseReflectionVector(Vec3 normal, Random random){
+		Vec3 vec = normal.add(Vec3.randomUnit(random)).normalize();
+		if (vec.dot(normal) < 0) vec = vec.mul(-1);
+		return vec;
+
 	}
 
 	private static Vec3 getRefractionVector(Vec3 rayDirection, Vec3 normal, float eta, float cosI, float cosT){

@@ -1,14 +1,16 @@
 fancy pathtracer i wrote over a month or so
-still under construction because i want to make glasss
 has
-  - bvh
-  - specular reflection
+  - .obj model loader
+  - implicit surface loader
+  - generally a robust environment system
+  - bvh (not SAH)
+  - specular reflection lerp (for metallic surfaces)
   - specular reflection chance (for plastic-like materials)
   - diffuse reflection
-  - variable color emissions
+    - with cosine weighted rays
+  - has refraction for glass-like surfaces
+    - no internal diffuse refraction
   - color sample accumlation
-  - 30 random meshes i found for free in random spots
-    - mostly test models
   - a rasterizer built in so you can move around at a reasonable framerate while setting up the camera
   - \[ and \] to toggle pathtracing
   - k to save it to a png named saved.png

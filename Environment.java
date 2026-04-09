@@ -8,10 +8,10 @@ import java.util.List;
 public class Environment{
 
 	public final Vec3 sunvec = new Vec3(0, 1, 1);;
-	private final float[] sunColor = {1, 0.8187f, 0.5333f};
-	private final float[] groundColour = {0.35f, 0.30f, 0.35f};
-	private final float[] skyColorHorizon = {1.0f, 1.0f, 1.0f};
-	private final float[] skyColorZenith = {0.08f, 0.37f, 0.73f};
+	private final float[] sunColor = {.8f, 0.8187f, 0.6333f}; // {1, 0.8187f, 0.5333f};
+	private final float[] groundColour = {0.2f, 0.20f, 0.25f}; // {0.35f, 0.30f, 0.35f};
+	private final float[] skyColorHorizon = {0.4f, 0.4f, 0.4f}; // {1.0f, 1.0f, 1.0f};
+	private final float[] skyColorZenith = {0.01f, 0.02f, 0.2f}; // {0.08f, 0.37f, 0.73f};
 	private final float sunInverseRadius = 200f; // bigger = smaller
 	private final float sunIntensity = .25f; // bigger = brighter
 

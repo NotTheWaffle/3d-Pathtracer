@@ -5,16 +5,19 @@ import Math.FloatMath;
 
 //TODO add multi importance sampling
 public class Main {
-	public static void main(String[] args){	
+	public static void main(String[] args){
 		int size = 1024;
 		Viewport camera = new Viewport(FloatMath.PI*.5f, 0, 0, size, size);
 		camera.translate(0, 0, -1);
 
-
 		Environment env = new Environment(true);
-		env.add(MeshLoader.loadObj("Models/cube.obj", new Transform(), 1, Material.SOLID));
+		//env.add(MeshLoader.loadObj("Models/dragon1mil.obj", new Transform(), 1, Material.SOLID));
+			//ImplicitEquation eq = new ImplicitEquation((x, y, z) -> (float) ((y * Math.sqrt(-2*Math.log(x*x+y*y)/(x*x+y*y)))-z));
+			//env.add(MeshLoader.loadImplicitEquation(eq, new AABB(-4, -4, -4, 4, 4,4), .1f, Material.solid(Color.RED)));
 		//env.add(new Sphere(1, Material.GLASS));
-		env.addFloor();
+		//env.addFloor();
+		//env.addSphereTest();
+		env.addCornellBox(2, 2.5f);
 
 		runGame(new AsyncVirtualThreadedPathtracedGame(camera, env));
 	}
