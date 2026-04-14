@@ -1,8 +1,9 @@
 fancy pathtracer i wrote over a month or so
 has
-  - .obj model loader
-  - implicit surface loader
   - generally a robust environment system
+    - .obj model loader
+    - implicit surface loader
+    - individual control over all objects
   - bvh (not SAH)
   - specular reflection lerp (for metallic surfaces)
   - specular reflection chance (for plastic-like materials)

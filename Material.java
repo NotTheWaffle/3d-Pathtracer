@@ -61,6 +61,9 @@ public class Material {
 	public static Material metal(Color color){
 		return new Material(0, Color.BLACK, color, .5f, 1, false, 0, 0);
 	}
+	public static Material reflective(Color color, float specularity, float specularityChance){
+		return new Material(0, Color.BLACK, color, specularity, specularityChance, false, 1, 1);
+	}
 	public static Material light(Color color){
 		return new Material(1, color, Color.BLACK, 0, 0, false, 0, 0);
 	}

@@ -77,7 +77,7 @@ public final class Ray {
 
 					Vec3 diffuseDirection = getDiffuseReflectionVector(N, random);
 
-					if (random.nextFloat() < reflectance){
+					if (FloatMath.random() < reflectance){
 						nextDirection = lerp(diffuseDirection, getSpecularReflectionVector(I, N), material.specularity).normalize();
 					} else {
 						nextDirection = lerp(diffuseDirection, getRefractionVector(I, N, eta, cosI, cosT), material.specularity).normalize();
@@ -89,7 +89,7 @@ public final class Ray {
 				}
 				Vec3 diffuseDirection = getCosineWeightedDiffuseReflectionVector(normal, random);
 				
-				if (random.nextFloat() < material.specularityChance){
+				if (FloatMath.random() < material.specularityChance){
 					Vec3 specularDirection = getSpecularReflectionVector(rayDirection, normal);
 					nextDirection = lerp(diffuseDirection, specularDirection, material.specularity).normalize();
 					applyColor = false;

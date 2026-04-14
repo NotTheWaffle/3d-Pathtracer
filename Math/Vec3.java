@@ -61,7 +61,7 @@ public class Vec3{
 	}
 
 	public static Vec3 random(Random random){
-		return new Vec3(random.nextFloat() - .5f, random.nextFloat() - .5f, random.nextFloat() - .5f);
+		return new Vec3(FloatMath.random() - .5f, FloatMath.random() - .5f, FloatMath.random() - .5f);
 	}
 	public static Vec3 randomUnit(Random random){
 		return new Vec3(FloatMath.randomGaussian(random), FloatMath.randomGaussian(random), FloatMath.randomGaussian(random)).normalize();

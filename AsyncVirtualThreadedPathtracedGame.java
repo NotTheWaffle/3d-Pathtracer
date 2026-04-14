@@ -34,6 +34,9 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 
 		this.env = env;
 		this.camera = camera;
+		camera.rotateX(Ray.EPSILON);
+		camera.rotateY(Ray.EPSILON);
+		camera.rotateZ(Ray.EPSILON);
 	
 
 		pixelBuffer = new Pixel[height][width];
@@ -150,8 +153,9 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 			if (object instanceof Mesh mesh){
 				mesh.bvh.renderWireframe(raster, zBuffer, camera, (int) (input.mouseWheel));
 			} else {
-				object.renderRasterized(raster, zBuffer, camera);
+				
 			}
+			object.renderRasterized(raster, zBuffer, camera);
 		}
 		return image;
 	}
@@ -161,9 +165,13 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 		int[] black = {0, 0, 0, 255};
 		for (int y = 0; y < pixelBuffer.length; y++){
 			for (int x = 0; x < pixelBuffer[y].length; x++){
+				if (width <= 256 && pixelBuffer[y][x].getSamples() == 0){
+					long start = System.nanoTime();
+					while (pixelBuffer[y][x].getSamples() == 0 && System.nanoTime()-start < 1_000){
+						Thread.onSpinWait();
+					}
+				}
 				if (pixelBuffer[y][x].getSamples() == 0){
-					
-					//Thread.onSpinWait();
 					raster.setPixel(x, y, black);
 					continue;
 				}
@@ -203,17 +211,16 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 	private void beginPathtracing2(int threadCount){
 		stopPathtracing();
 		Random globalRandom = new Random();
-		int partitions = (int) Math.sqrt(threadCount);
-		List<Pair<Integer, Integer>>[] pointSets = new List[partitions];
-		for (int i = 0; i < partitions; i++){
+		List<Pair<Integer, Integer>>[] pointSets = new List[threadCount];
+		for (int i = 0; i < threadCount; i++){
 			pointSets[i] = new ArrayList<>();
 		}
 		for (int x = 0; x < camera.screenWidth; x++){
 			for (int y = 0; y < camera.screenHeight; y++){
-				pointSets[globalRandom.nextInt(partitions)].add(new Pair<>(x, y));
+				pointSets[globalRandom.nextInt(threadCount)].add(new Pair<>(x, y));
 			}
 		}
-		for (int i = 0; i < partitions; i++){
+		for (int i = 0; i < threadCount; i++){
 			Collections.shuffle(pointSets[i]);
 			final int i_f = i;
 			Thread t = new Thread(() -> {
@@ -252,7 +259,7 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 				if (camera.focus == 0){
 					vector = camera.rot.mul((new Vec3(x-camera.cx, camera.cy-y, camera.focalLength)).normalize());
 				} else {
-					origin = camera.translation.add(new Vec3((random.nextFloat()-.5f)*camera.focus, (random.nextFloat()-.5f)*camera.focus, (random.nextFloat()-.5f)*camera.focus));
+					origin = camera.translation.add(new Vec3((FloatMath.random()-.5f)*camera.focus, (FloatMath.random()-.5f)*camera.focus, (FloatMath.random()-.5f)*camera.focus));
 					Vec3 pixelPoint = camera.translation.add(camera.rot.mul(new Vec3(x-camera.cx, camera.cy-y, camera.focalLength).mul(camera.focusDistance/camera.focalLength)));
 					vector = pixelPoint.sub(origin).normalize();
 				}
@@ -272,7 +279,7 @@ public class AsyncVirtualThreadedPathtracedGame extends Game{
 			if (camera.focus == 0){
 				vector = camera.rot.mul((new Vec3(x-camera.cx, camera.cy-y, camera.focalLength)).normalize());
 			} else {
-				origin = camera.translation.add(new Vec3((random.nextFloat()-.5f)*camera.focus, (random.nextFloat()-.5f)*camera.focus, (random.nextFloat()-.5f)*camera.focus));
+				origin = camera.translation.add(new Vec3((FloatMath.random()-.5f)*camera.focus, (FloatMath.random()-.5f)*camera.focus, (FloatMath.random()-.5f)*camera.focus));
 				Vec3 pixelPoint = camera.translation.add(camera.rot.mul(new Vec3(x-camera.cx, camera.cy-y, camera.focalLength).mul(camera.focusDistance/camera.focalLength)));
 				vector = pixelPoint.sub(origin).normalize();
 			}

@@ -1,6 +1,7 @@
 package Math;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FloatMath {
 	public static final float PI = (float) Math.PI;
@@ -22,7 +23,10 @@ public class FloatMath {
 	public static float tan(float a){
 		return (float) Math.tan(a);
 	}
+	public static float random(){
+		return Float.intBitsToFloat(0x3f80_0000 | ThreadLocalRandom.current().nextInt(0x80_0000)) - 1;
+	}
 	public static float randomGaussian(Random random){
-		return sqrt(-2*(float) Math.log(random.nextFloat())) * cos(2*PI*random.nextFloat());
+		return sqrt(-2*(float) Math.log(FloatMath.random())) * cos(2*PI*FloatMath.random());
 	}
 }
