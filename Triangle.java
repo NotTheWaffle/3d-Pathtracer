@@ -119,7 +119,7 @@ public class Triangle extends DeficientPhysicalObject{
 		float t = f * edge2.dot(q);
 		if (t < EPSILON) return null;
 		Vec3 N = this.normal();
-		return new Intersection(rayDirection.mul(t).add(rayOrigin), null, N, rayDirection.dot(N) > 0);
+		return new Intersection(rayDirection.mul(t).add(rayOrigin), null, N, rayDirection.dot(N) > 0, rayOrigin);
 	}
 
 	@Override

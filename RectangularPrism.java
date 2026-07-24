@@ -78,7 +78,7 @@ public final class RectangularPrism extends PhysicalObject{
 			}
 		}
 		if (normal == null) normal = new Vec3(1, 1, 1);
-		return new Intersection(rayOrigin.add(rayDirection.mul(thit)), this.material, normal, normal.dot(rayDirection) > 0);
+		return new Intersection(rayOrigin.add(rayDirection.mul(thit)), this.material, normal, normal.dot(rayDirection) > 0, rayOrigin);
 	}
 
 	/**

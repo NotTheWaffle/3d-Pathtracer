@@ -125,7 +125,7 @@ public final class InterpolatedTriangle extends Triangle{
 		Vec3 intersectionPoint = rayDirection.mul(t).add(rayOrigin);
 
 		Vec3 normal = getNormal(intersectionPoint);
-		return new Intersection(intersectionPoint, null, normal, rayDirection.dot(normal) > 0);
+		return new Intersection(intersectionPoint, null, normal, rayDirection.dot(normal) > 0, rayOrigin);
 	}
 
 	/**

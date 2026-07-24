@@ -11,7 +11,7 @@ public final class Ray {
 	public static float[] trace(Vec3 rayOrigin, Vec3 rayDirection, Environment env, int maxDepth, Random random, int[] objectOrder){
 		float[] rayColor = {1.0f, 1.0f, 1.0f};
 		float[] incomingLight = {0.0f, 0.0f, 0.0f};
-
+		int k = 0;
 		for (int depth = 0; depth < maxDepth; depth++){
 			// find nearest intersection
 			Intersection intersection = null;
@@ -21,7 +21,7 @@ public final class Ray {
 				Intersection localIntersection = p.getTransformedintersection(rayOrigin, rayDirection, minDist);
 				if (localIntersection != null && localIntersection.backface && !localIntersection.material.transparent) localIntersection = null;
 				if (localIntersection == null) continue;
-				float dist = rayOrigin.dist(localIntersection.pos);
+				float dist = localIntersection.distance;
 				if (intersection == null || dist < minDist){
 					minDist = dist;
 					intersection = localIntersection;
@@ -38,6 +38,11 @@ public final class Ray {
 			Material material = intersection.material;
 			Vec3 normal = intersection.normal;
 
+			if (material.magic){
+				rayDirection = intersection.normal;
+				rayOrigin = intersection.pos.add(rayDirection.mul(EPSILON*10));
+				continue;
+			}
 
 			// find next ray
 			Vec3 nextDirection;
@@ -119,8 +124,8 @@ public final class Ray {
 			if (rayColor[0] < .01 && rayColor[1] < .01 && rayColor[2] < .01){
 				break;
 			}
+			k = depth;
 		}
-
 		return incomingLight;
 	}
 

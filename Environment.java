@@ -79,12 +79,12 @@ public class Environment{
 			}
 			case SUN -> {
 				if (rayDirection.dot(SUN_VEC) > .9){
-					yield new Intersection(Vec3.ZERO_VEC, Material.LIGHT, Vec3.ZERO_VEC, false);
+					yield new Intersection(Vec3.ZERO_VEC, Material.LIGHT, Vec3.ZERO_VEC, false, Vec3.ZERO_VEC);
 				}
 				yield null;
 			}
 			case SKY -> {
-				yield new Intersection(Vec3.ZERO_VEC, new Material(computeSkyColor(rayDirection), 1), Vec3.ZERO_VEC, false);
+				yield new Intersection(Vec3.ZERO_VEC, new Material(computeSkyColor(rayDirection), 1), Vec3.ZERO_VEC, false, Vec3.ZERO_VEC);
 			}
 			default -> {
 				yield null;

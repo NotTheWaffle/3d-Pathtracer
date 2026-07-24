@@ -82,7 +82,7 @@ public class Sphere extends PhysicalObject{
 		Vec3 intersectionPoint = rayOrigin.add(rayDirection.mul(t));
 		Vec3 normal = intersectionPoint.normalize();
 
-		return new Intersection(intersectionPoint, this.material, normal, normal.dot(rayDirection) > 0);
+		return new Intersection(intersectionPoint, this.material, normal, normal.dot(rayDirection) > 0, rayOrigin);
 	}
 
 	@Override

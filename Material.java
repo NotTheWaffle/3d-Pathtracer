@@ -17,6 +17,8 @@ public class Material {
 	public final float refractiveIndex;
 	public final float absorption;
 
+	public final boolean magic;
+
 	/** A white material that emits no light. Fully diffuse reflections.*/
 	public static final Material LAMBERTIAN = lambertian(Color.WHITE);
 	/** A black material that emits white light. No Reflections.*/
@@ -31,6 +33,9 @@ public class Material {
 	public static final Material GLASS = glass(Color.WHITE, 1.5f);
 	/** A white material that emits no light. Refracts most light with an index of 1.5 (glass), reflects small amounts to appear "frosted" */
 	public static final Material FROSTED_GLASS = frostedGlass(Color.WHITE, 1.5f, .95f);
+	/** A magic material. Doesn't interact with light at all, but moves it around via local teleportation */
+	public static final Material MAGIC = new Material(true);
+
 	private Material(float emissionStrength, Color emissionColor, Color reflectionColor, float specularity, float specularityChance, boolean transparent, float refractiveIndex, float absorption){
 		this.emissionStrength = emissionStrength;
 		this.emissionColor = new float[] {emissionColor.getRed()/255.0f, emissionColor.getGreen()/255.0f, emissionColor.getBlue()/255.0f};
@@ -42,6 +47,7 @@ public class Material {
 		this.transparent = transparent;
 		this.refractiveIndex = refractiveIndex;
 		this.absorption = absorption;
+		magic = false;
 	}
 	public Material(float[] color, float strength){
 		this.emissionStrength = strength;
@@ -53,6 +59,18 @@ public class Material {
 
 		this.transparent = false;
 		this.refractiveIndex = 1;
+		this.absorption = 0;
+		magic = false;
+	}
+	public Material(boolean magic){
+		this.magic = true;
+		this.emissionStrength = 0;
+		this.emissionColor = null;
+		this.reflectionColor = null;
+		this.specularity = 0;
+		this.specularityChance = 0;
+		this.transparent = false;
+		this.refractiveIndex = 0;
 		this.absorption = 0;
 	}
 	public static Material lambertian(Color color){
