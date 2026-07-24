@@ -23,14 +23,38 @@ public class Game {
 		return "Default";
 	}
 	public void tick(double dt){
-		
+
 	}
 	public void generateFrame(){
-		
+
 	}
 	public final void updateFrame(Graphics2D g2d){
 		g2d.drawImage(nextFrame, 0, 0, null);
 		g2d.setColor(Color.RED);
 		g2d.drawString(debug, 0, 20);
+	}
+	public Thread start(){
+		return Game.start(this);
+	}
+	public void run(){
+		Game.run(this);
+	}
+
+	public static Thread start(Game game){
+		Thread thread = new Thread(() -> Game.run(game));
+		thread.start();
+		return thread;
+	}
+	public static void run(final Game game){
+		final Window window = new Window(game);
+		long lastTime = System.nanoTime();
+		while (true){
+			final long now = System.nanoTime();
+			final double deltaTime = (now - lastTime) / 1_000_000_000.0;
+			lastTime = now;
+			game.tick(deltaTime);
+			game.generateFrame();
+			window.render();
+		}
 	}
 }

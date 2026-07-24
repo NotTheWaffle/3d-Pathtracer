@@ -1,2 +1,5 @@
 Models/
 saved.png
+Environments/
+*.jfr
+*.class

@@ -3,27 +3,38 @@ import Math.Vec3;
 import java.awt.image.WritableRaster;
 import java.util.List;
 
-public class Triangle extends DeficientPhysicalObject{
-	public final static float EPSILON = 1e-4f;
-	public final Vec3 p1;
-	public final Vec3 p2;
-	public final Vec3 p3;
-	public Triangle(Vec3 p1, Vec3 p2, Vec3 p3){
-		this.p1 = p1;
-		this.p2 = p2;
-		this.p3 = p3;
+/**
+ * An extension upon a normal triangle by adding interpolation of normals between each vertex.
+ * InterpolatedTriangle
+ */
+public final class InterpolatedTriangle extends Triangle{
+	public final Vec3 n1;
+	public final Vec3 n2;
+	public final Vec3 n3;
+	public InterpolatedTriangle(Vec3 p1, Vec3 p2, Vec3 p3, Vec3 n1, Vec3 n2, Vec3 n3){
+		super(p1, p2, p3);
+		this.n1 = n1.normalize();
+		this.n2 = n2.normalize();
+		this.n3 = n3.normalize();
 	}
-	public Triangle(int i1, int i2, int i3, List<Vec3> points){
-		this(points.get(i1), points.get(i2), points.get(i3));
+	public InterpolatedTriangle(int p1, int p2, int p3, List<Vec3> points, int n1, int n2, int n3, List<Vec3> normals){
+		p1 = Math.floorMod(p1, points.size());
+		p2 = Math.floorMod(p2, points.size());
+		p3 = Math.floorMod(p3, points.size());
+
+		n1 = Math.floorMod(n1, points.size());
+		n2 = Math.floorMod(n2, points.size());
+		n3 = Math.floorMod(n3, points.size());
+		super(p1, p2, p3, points);
+
+		this.n1 = normals.get(n1).normalize();
+		this.n2 = normals.get(n2).normalize();
+		this.n3 = normals.get(n3).normalize();
+
 	}
 	@Override
 	public Vec3 center(){
 		return (p1.add(p2).add(p3)).mul(1.0f/3.0f);
-	}
-	public Vec3 normal() {
-		Vec3 edge1 = p2.sub(p1);
-		Vec3 edge2 = p3.sub(p1);
-		return edge1.cross(edge2).normalize();
 	}
 	@Override
 	public void grow(AABB aabb){
@@ -59,6 +70,7 @@ public class Triangle extends DeficientPhysicalObject{
 		float area = edge(x1, y1, x2, y2, x3, y3);
 		if (area == 0) return;
 
+
 		float ia = 1/area;
 		float w1Incr = (y3-y2) * ia;
 		float w2Incr = (y1-y3) * ia;
@@ -85,15 +97,8 @@ public class Triangle extends DeficientPhysicalObject{
 				}
 			}
 		}
-		//Vec3 center = p1.add(p2).add(p3).mul(1/3f);
-		//rgb[0] = 255-rgb[0];
-		//rgb[1] = 255-rgb[1];
-		//rgb[2] = 255-rgb[2];
-		//Ray.render(transform.unapplyTo(center), transform.unapplyTo(center.add(normal.mul(.02f))), raster, zBuffer, camera, rgb);
 	}
-	private static float edge(int x1, int y1, int x2, int y2, int x, int y) {
-		return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);
-	}
+	private static float edge(int x1, int y1, int x2, int y2, int x, int y) {return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);}
 	@Override
 	public Intersection getDeficientIntersection(Vec3 rayOrigin, Vec3 rayDirection){
 		Vec3 edge1 = p2.sub(p1);
@@ -102,25 +107,52 @@ public class Triangle extends DeficientPhysicalObject{
 
 		float a = edge1.dot(h);
 
-		// ideally used to cull triangles but floats don't have enough precision
-		//if (a > -0 && a < 0) return null;
+		if (a > -0 && a < 0) return null;
 
 		float f = 1.0f / a;
 		Vec3 s = rayOrigin.sub(p1);
 		float u = f * s.dot(h);
 
-		if (u < 0 || u > 1) return null;
+		if (u < 0.0 || u > 1.0) return null;
 
 		Vec3 q = s.cross(edge1);
 		float v = f * rayDirection.dot(q);
 
-		if (v < 0 || u + v > 1.0) return null;
+		if (v < 0.0 || u + v > 1.0) return null;
 
 		float t = f * edge2.dot(q);
 		if (t < EPSILON) return null;
-		Vec3 N = this.normal();
-		return new Intersection(rayDirection.mul(t).add(rayOrigin), null, N, rayDirection.dot(N) > 0);
+		Vec3 intersectionPoint = rayDirection.mul(t).add(rayOrigin);
+
+		Vec3 normal = getNormal(intersectionPoint);
+		return new Intersection(intersectionPoint, null, normal, rayDirection.dot(normal) > 0);
 	}
+
+	/**
+	 * Interpolates between the 3 points to determine a normal
+	 * @param P
+	 * @return
+	 */
+	public Vec3 getNormal(Vec3 P){
+		Vec3 e0 = p2.sub(p1);
+		Vec3 e1 = p3.sub(p1);
+		Vec3 vp = P.sub(p1);
+
+		float d00 = e0.dot(e0);
+		float d01 = e0.dot(e1);
+		float d11 = e1.dot(e1);
+		float d20 = vp.dot(e0);
+		float d21 = vp.dot(e1);
+
+		float denom = d00 * d11 - d01 * d01;
+
+		float beta  = (d11 * d20 - d01 * d21) / denom;
+		float gamma = (d00 * d21 - d01 * d20) / denom;
+		float alpha = 1.0f - beta - gamma;
+
+		return n1.mul(alpha).add(n2.mul(beta)).add(n3.mul(gamma));
+	}
+
 
 	@Override
 	public int hashCode(){

@@ -8,17 +8,22 @@ import java.util.Random;
 public final class Ray {
 	public final static float EPSILON = PhysicalObject.EPSILON;
 	private Ray(){}
-	public static float[] trace(Vec3 rayOrigin, Vec3 rayDirection, Environment env, int maxDepth, Random random){
+	public static float[] trace(Vec3 rayOrigin, Vec3 rayDirection, Environment env, int maxDepth, Random random, int[] objectOrder){
 		float[] rayColor = {1.0f, 1.0f, 1.0f};
 		float[] incomingLight = {0.0f, 0.0f, 0.0f};
-		
-		for (int i = 0; i < maxDepth; i++){
+
+		for (int depth = 0; depth < maxDepth; depth++){
 			// find nearest intersection
 			Intersection intersection = null;
-			for (PhysicalObject p : env.physicalObjects){
-				Intersection localIntersection = p.getTransformedintersection(rayOrigin, rayDirection);
+			float minDist = Float.POSITIVE_INFINITY;
+			for (int i = 0; i < objectOrder.length; i++){
+				PhysicalObject p = env.physicalObjects.get(objectOrder[i] & 0xff);
+				Intersection localIntersection = p.getTransformedintersection(rayOrigin, rayDirection, minDist);
+				if (localIntersection != null && localIntersection.backface && !localIntersection.material.transparent) localIntersection = null;
 				if (localIntersection == null) continue;
-				if (intersection == null || rayOrigin.dist(intersection.pos) > rayOrigin.dist(localIntersection.pos)){
+				float dist = rayOrigin.dist(localIntersection.pos);
+				if (intersection == null || dist < minDist){
+					minDist = dist;
 					intersection = localIntersection;
 				}
 			}
@@ -29,9 +34,7 @@ public final class Ray {
 				if (intersection == null) break;
 			}
 
-			float distance = rayOrigin.dist(intersection.pos);
-			
-			
+
 			Material material = intersection.material;
 			Vec3 normal = intersection.normal;
 
@@ -49,7 +52,8 @@ public final class Ray {
 
 				if (intersection.backface) {
 					// ok so the distance from the last intersection to here isn't **necessarily** the distance in the thing, but like close enough
-					float absorption = FloatMath.exp(-distance * material.absorption);
+					// errors arise when a collision occurs within a glass object. not possible in real life but (this isn't real life)
+					float absorption = FloatMath.exp(-minDist * material.absorption);
 					rayColor[0] *= material.reflectionColor[0] * absorption;
 					rayColor[1] *= material.reflectionColor[1] * absorption;
 					rayColor[2] *= material.reflectionColor[2] * absorption;
@@ -63,12 +67,12 @@ public final class Ray {
 				float eta = iorA/iorB;
 
 				float sinT2 = eta * eta * (1.0f - cosI * cosI);
-				
+
 				if (sinT2 >= 1.0){
 					nextDirection = getSpecularReflectionVector(I, N);
 				} else {
 					float cosT = FloatMath.sqrt(1.0f - sinT2);
-			
+
 					float r0 = (iorA - iorB) / (iorA + iorB);
 					r0 *= r0;
 
@@ -84,11 +88,8 @@ public final class Ray {
 					}
 				}
 			} else {
-				if (intersection.backface){
-					normal = normal.mul(-1);
-				}
 				Vec3 diffuseDirection = getCosineWeightedDiffuseReflectionVector(normal, random);
-				
+
 				if (FloatMath.random() < material.specularityChance){
 					Vec3 specularDirection = getSpecularReflectionVector(rayDirection, normal);
 					nextDirection = lerp(diffuseDirection, specularDirection, material.specularity).normalize();
@@ -98,18 +99,18 @@ public final class Ray {
 					applyColor = true;
 				}
 			}
-			
-			rayDirection = nextDirection;
-			rayOrigin = intersection.pos.add(rayDirection.mul(EPSILON));
 
-			
+			rayDirection = nextDirection;
+			rayOrigin = intersection.pos.add(rayDirection.mul(EPSILON * 4));
+
+
 			//calculate colors
 			// emissionStrengh * emissionColor = emitted light, multiply with ray color to get the intersection of the colors
 			if (applyColor){
 				incomingLight[0] += (material.emissionStrength * material.emissionColor[0]) * rayColor[0];
 				incomingLight[1] += (material.emissionStrength * material.emissionColor[1]) * rayColor[1];
 				incomingLight[2] += (material.emissionStrength * material.emissionColor[2]) * rayColor[2];
-				
+
 				rayColor[0] *= material.reflectionColor[0];
 				rayColor[1] *= material.reflectionColor[1];
 				rayColor[2] *= material.reflectionColor[2];
@@ -122,7 +123,7 @@ public final class Ray {
 
 		return incomingLight;
 	}
-	
+
 	private static Vec3 getSpecularReflectionVector(Vec3 rayDirection, Vec3 normal){
 		return rayDirection.sub(normal.mul(2 * rayDirection.dot(normal))).normalize();
 	}
@@ -153,15 +154,24 @@ public final class Ray {
 		);
 	}
 
-
-	public static void render(Vec3 start, Vec3 end, WritableRaster raster, float[][] zBuffer, Viewport camera, int[] color) {
+	/**
+	 * Renders a line from {@code start} to {@code end} onto a raster, obeying and updating a {@code zBuffer}
+	 * @param flag
+	 * @param start
+	 * @param end
+	 * @param raster
+	 * @param zBuffer
+	 * @param camera
+	 * @param color
+	 */
+	public static void render(boolean flag, Vec3 start, Vec3 end, WritableRaster raster, float[][] zBuffer, Viewport camera, int[] color) {
 		Vec3 projectedStart = camera.applyTo(start);
 		Vec3 projectedEnd = camera.applyTo(end);
-		
+
 		// don't attempt to render points behind the camera
 		if (projectedStart.z < 0 || projectedEnd.z < 0) return;
 
-		
+
 		float x1 = camera.getX(projectedStart);
 		float y1 = camera.getY(projectedStart);
 
@@ -183,11 +193,12 @@ public final class Ray {
 
 		int width = raster.getWidth();
 		int height = raster.getHeight();
-		
+
 		for (float x = x1, y = y1; x < x2; x+=dx, y+=dy){
 			if (x < 0 || (int)x >= width || y < 0 || (int)y >= height){
 				break;
 			}
+
 			zBuffer[(int)x][(int)y] = 0f;
 			raster.setPixel((int)x, (int)y, color);
 		}
@@ -195,8 +206,75 @@ public final class Ray {
 			if (x < 0 || (int)x >= width || y < 0 || y >= height){
 				break;
 			}
+			if (zBuffer[(int)x][(int)y] > .1) continue;
 			zBuffer[(int)x][(int)y] = 0f;
 			raster.setPixel((int)x, (int)y, color);
+		}
+	}
+	public static void render(Vec3 start, Vec3 end, WritableRaster raster, float[][] zBuffer, Viewport camera, int[] color){
+		Vec3 a = camera.applyTo(start);
+		Vec3 b = camera.applyTo(end);
+
+		// behind camera
+		if (a.z < 0 || b.z < 0)
+			return;
+
+		// Convert projected coordinates to screen coordinates
+		int x0 = Math.round(camera.getX(a));
+		int y0 = Math.round(camera.getY(a));
+
+		int x1 = Math.round(camera.getX(b));
+		int y1 = Math.round(camera.getY(b));
+
+		float z0 = a.z;
+		float z1 = b.z;
+
+		int width = raster.getWidth();
+		int height = raster.getHeight();
+
+		int dx = Math.abs(x1 - x0);
+		int dy = Math.abs(y1 - y0);
+
+		int sx = x0 < x1 ? 1 : -1;
+		int sy = y0 < y1 ? 1 : -1;
+
+		int err = dx - dy;
+
+		int steps = Math.max(dx, dy);
+		int step = 0;
+
+		while (true) {
+
+			float t = steps == 0 ? 0 : (float)step / steps;
+
+			// interpolate depth
+			float z = z0 * (1 - t) + z1 * t;
+
+			if (x0 >= 0 && x0 < width &&
+				y0 >= 0 && y0 < height) {
+
+				if (z < zBuffer[x0][y0]) {
+					zBuffer[x0][y0] = z;
+					raster.setPixel(x0, y0, color);
+				}
+			}
+
+			if (x0 == x1 && y0 == y1)
+				break;
+
+			int e2 = 2 * err;
+
+			if (e2 > -dy) {
+				err -= dy;
+				x0 += sx;
+			}
+
+			if (e2 < dx) {
+				err += dx;
+				y0 += sy;
+			}
+
+			step++;
 		}
 	}
 }

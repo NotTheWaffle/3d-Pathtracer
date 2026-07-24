@@ -24,7 +24,7 @@ public class Transform {
 	public Vec3 unapplyTo(Vec3 point){
 		return translation.add(rot.mul(point));
 	}
-	
+
 	public Transform turnX(float pitch){
 		rot = Mat3.multiply(rot, rotationX(-pitch));
 		inv = rot.transpose();
@@ -65,7 +65,7 @@ public class Transform {
 		translation = translation.add(new Vec3(x, y, z));
 		return this;
 	}
-	
+
 	private static Mat3 rotationX(float pitch) {
 		float c = FloatMath.cos(pitch);
 		float s = FloatMath.sin(pitch);
@@ -95,7 +95,19 @@ public class Transform {
 			0, 0, 1
 		);
 	}
-
+	@Override
+	public boolean equals(Object o){
+		if (o == this) return true;
+		if (o instanceof Transform t){
+			return t.rot.equals(rot) && t.translation.equals(translation);
+		} else {
+			return false;
+		}
+	}
+	@Override
+	public int hashCode(){
+		return rot.hashCode() ^ translation.hashCode();
+	}
 	@Override
 	public String toString(){
 		return translation.toString()+"\n"+rot.toString();
