@@ -17,12 +17,13 @@ public class BVH {
 	private BVH node1;
 	private DeficientPhysicalObject[] objects;
 	private AABB bounds;
-	public BVH(){
+	private BVH(){
 		bounds = new AABB();
 		node0 = null;
 		node1 = null;
 		objects = null;
 	}
+	// defines a list of split points for this bvh
 	public static final float[] SPLITS;
 	static {
 		int count = 3;
@@ -194,44 +195,44 @@ public class BVH {
 			return null;
 		}
 		Intersection intersection = null;
-		if (objects == null){
-			// not a leaf node
-			if (node0 == null || node1 == null){
-				System.out.println("Strange Node");
-				return null;
-			}
-			BVH close = node0;
-			BVH far = node1;
-			float closeTime = close.bounds.testIntersection(origin, direction);
-			float farTime = far.bounds.testIntersection(origin, direction);
-			// swap the close and far nodes if they are reversed
-			if (farTime < closeTime){
-				BVH temp = close;
-				close = far;
-				far = temp;
-				float tempTime = closeTime;
-				closeTime = farTime;
-				farTime = tempTime;
-			}
-
-			// closetime < 0 represents not colliding
-			intersection = closeTime < 0 ? null : close.getDeficientIntersection(origin, direction, minDist, false);
-			if (intersection == null){
-				// same here
-				intersection = farTime < 0 ? null : far.getDeficientIntersection(origin, direction, minDist, false);
-			} else if (intersection.pos.dist(origin) > farTime){
-				// if the closest point of the far box is earlier than the collision found in the first box we must check the far box
-				// this only matters when two bvhs overlap in volume
-				Intersection localIntersection = farTime < 0 ? null : far.getDeficientIntersection(origin, direction, minDist, false);
-				if (localIntersection != null && origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
-					intersection = localIntersection;
-				}
-			}
-		} else {
+		if (objects != null){
 			// leaf nodes just check their children
 			for (DeficientPhysicalObject tri : objects){
 				Intersection localIntersection = tri.getDeficientIntersection(origin, direction);
 				if (localIntersection == null || (intersection != null && origin.dist(intersection.pos) < origin.dist(localIntersection.pos))) continue;
+				intersection = localIntersection;
+			}
+			return intersection;
+		}
+		// not a leaf node
+		if (node0 == null || node1 == null){
+			System.out.println("Strange Node");
+			return null;
+		}
+		BVH close = node0;
+		BVH far = node1;
+		float closeDistance = close.bounds.testIntersection(origin, direction);
+		float farDistance = far.bounds.testIntersection(origin, direction);
+		// swap the close and far nodes if they are reversed
+		if (farDistance < closeDistance){
+			BVH temp = close;
+			close = far;
+			far = temp;
+			float tempDistance = closeDistance;
+			closeDistance = farDistance;
+			farDistance = tempDistance;
+		}
+
+		// closeDistance < 0 represents not colliding
+		intersection = closeDistance < 0 ? null : close.getDeficientIntersection(origin, direction, minDist, false);
+		if (intersection == null){
+			// farDistance < 0 represents not colliding
+			intersection = farDistance < 0 ? null : far.getDeficientIntersection(origin, direction, minDist, false);
+		} else if (intersection.pos.dist(origin) > farDistance){
+			// if the collision found in the near box is farther away than a theoretical collision with something in the far box, we must check it
+			// this only matters when two bvhs overlap
+			Intersection localIntersection = farDistance < 0 ? null : far.getDeficientIntersection(origin, direction, minDist, false);
+			if (localIntersection != null && origin.dist(intersection.pos) > origin.dist(localIntersection.pos)){
 				intersection = localIntersection;
 			}
 		}

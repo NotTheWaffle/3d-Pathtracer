@@ -16,6 +16,8 @@ public class Environment{
 	public static final int SUN = 1;
 	public static final int SKY = 2;
 
+	private boolean locked;
+
 	private final int backgroundType;
 
 	public final List<PhysicalObject> physicalObjects;
@@ -64,7 +66,12 @@ public class Environment{
 	 * @param object
 	 */
 	public void add(PhysicalObject object){
+		if (locked) return;
 		if (physicalObjects.size() < MAX_OBJECT_COUNT) physicalObjects.add(object);
+	}
+
+	public boolean locked(){
+		return locked;
 	}
 
 	/**
@@ -134,6 +141,14 @@ public class Environment{
 
 		return composite;
 	}
+
+	public synchronized void lock(){
+		this.locked = true;
+	}
+	public synchronized void unlock(){
+		this.locked = false;
+	}
+
 
 	@Override
 	public boolean equals(Object o){

@@ -9,6 +9,7 @@ public class Intersection {
 	Vec3 normal;
 	boolean backface;
 	float distance;
+
 	public Intersection(Vec3 pos, Material material, Vec3 normal, boolean backface, Vec3 origin){
 		this.pos = pos;
 		this.material = material;

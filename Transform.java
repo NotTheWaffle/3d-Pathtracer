@@ -17,19 +17,17 @@ public class Transform {
 		this.rot = rot;
 		this.inv = rot.transpose();
 	}
+	public Transform(Transform transform){
+		this.translation = transform.translation;
+		this.rot = transform.rot;
+		this.inv = transform.inv;
+	}
 
 	public Vec3 applyTo(Vec3 point){
 		return inv.mul(point.sub(translation));
 	}
 	public Vec3 unapplyTo(Vec3 point){
 		return translation.add(rot.mul(point));
-	}
-
-	public Vec3 applyTo2(Vec3 point){
-		return inv.mul(point).sub(translation);
-	}
-	public Vec3 unapplyTo2(Vec3 point){
-		return rot.mul(translation.add(point));
 	}
 
 	public Transform turnX(float pitch){

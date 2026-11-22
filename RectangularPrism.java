@@ -23,7 +23,7 @@ public final class RectangularPrism extends PhysicalObject{
 	 * Uses the slab intersection algorithm
 	 */
 	@Override
-	public Intersection getLocalIntersection(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
+	public Intersection getIntersectionLocal(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
 		float temp;
 		float txenter = (minX-rayOrigin.x)/rayDirection.x;
 		float txexit = (maxX-rayOrigin.x)/rayDirection.x;

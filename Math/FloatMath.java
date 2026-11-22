@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class FloatMath {
 	public static final float PI = (float) Math.PI;
+	public static final float TAU = 2 * PI;
 	public static float sqrt(float f){
 		return (float) Math.sqrt(f);
 	}

@@ -16,6 +16,20 @@ public class Viewport extends Transform {
 	public final int cx;
 	public final int cy;
 
+	public Viewport(Viewport viewport){
+		super(viewport);
+		this.fov = viewport.fov;
+		this.focalLength = viewport.focalLength;
+
+		this.focusDistance = viewport.focusDistance;
+		this.focus = viewport.focus;
+
+		this.screenWidth = viewport.screenWidth;
+		this.screenHeight = viewport.screenHeight;
+		this.pixels = viewport.pixels;
+		this.cx = viewport.cx;
+		this.cy = viewport.cy;
+	}
 	public Viewport(float fov, int screenWidth, int screenHeight){
 		this(fov, 0, 0, screenWidth, screenHeight);
 	}

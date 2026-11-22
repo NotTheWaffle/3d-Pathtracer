@@ -10,18 +10,21 @@ public abstract class DeficientPhysicalObject {
 	 * @return
 	 */
 	public abstract Vec3 center();
+
 	/**
-	 * Get a deficient intersection between a ray and this object. Any passed material is expected tobe replaced
+	 * Get a deficient intersection between a ray and this object. Any passed material is expected to be replaced
 	 * @param rayOrigin
 	 * @param rayDirection
 	 * @return
 	 */
 	public abstract Intersection getDeficientIntersection(Vec3 rayOrigin, Vec3 rayDirection);
+
 	/**
-	 * Grow the AABB to fit this
+	 * Grow an AABB to fit this
 	 * @param aabb
 	 */
 	public abstract void grow(AABB aabb);
+
 	/**
 	 * Render this object onto a raster given a certain camera position.
 	 * @param raster

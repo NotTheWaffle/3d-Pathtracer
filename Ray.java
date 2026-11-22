@@ -11,14 +11,18 @@ public final class Ray {
 	public static float[] trace(Vec3 rayOrigin, Vec3 rayDirection, Environment env, int maxDepth, Random random, int[] objectOrder){
 		float[] rayColor = {1.0f, 1.0f, 1.0f};
 		float[] incomingLight = {0.0f, 0.0f, 0.0f};
-		int k = 0;
+
 		for (int depth = 0; depth < maxDepth; depth++){
 			// find nearest intersection
 			Intersection intersection = null;
 			float minDist = Float.POSITIVE_INFINITY;
 			for (int i = 0; i < objectOrder.length; i++){
+				// TODO objectorder is useless when we aren't at the origin. but its not detrimental so who cares
 				PhysicalObject p = env.physicalObjects.get(objectOrder[i] & 0xff);
-				Intersection localIntersection = p.getTransformedintersection(rayOrigin, rayDirection, minDist);
+
+				Intersection localIntersection = p.getIntersectionWorld(rayOrigin, rayDirection, minDist);
+
+				// ignore backface colissions for non-transparent objects
 				if (localIntersection != null && localIntersection.backface && !localIntersection.material.transparent) localIntersection = null;
 				if (localIntersection == null) continue;
 				float dist = localIntersection.distance;
@@ -39,6 +43,7 @@ public final class Ray {
 			Vec3 normal = intersection.normal;
 
 			if (material.magic){
+				// the "normal" of an intersection is used as the new direction for portals
 				rayDirection = intersection.normal;
 				rayOrigin = intersection.pos.add(rayDirection.mul(EPSILON*10));
 				continue;
@@ -124,7 +129,6 @@ public final class Ray {
 			if (rayColor[0] < .01 && rayColor[1] < .01 && rayColor[2] < .01){
 				break;
 			}
-			k = depth;
 		}
 		return incomingLight;
 	}

@@ -53,7 +53,7 @@ public class Mesh extends PhysicalObject{
 		}
 	}
 	@Override
-	public Intersection getLocalIntersection(Vec3 origin, Vec3 direction, float minDist){
+	public Intersection getIntersectionLocal(Vec3 origin, Vec3 direction, float minDist){
 		Intersection intersection = bvh.getDeficientIntersection(origin, direction, minDist);
 		if (intersection == null) return null;
 		intersection.material = this.material;
@@ -67,5 +67,9 @@ public class Mesh extends PhysicalObject{
 		} else {
 			return false;
 		}
+	}
+	@Override
+	public String toString(){
+		return "Object Mesh of "+bvh.getTotalObjects()+" objects";
 	}
 }

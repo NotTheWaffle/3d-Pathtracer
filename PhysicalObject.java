@@ -24,8 +24,8 @@ public abstract class PhysicalObject {
 	 * @param minDist
 	 * @return
 	 */
-	public final Intersection getTransformedintersection(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
-		Intersection intersection = getLocalIntersection(transform.applyTo(rayOrigin), transform.inv.mul(rayDirection), minDist);
+	public final Intersection getIntersectionWorld(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
+		Intersection intersection = getIntersectionLocal(transform.applyTo(rayOrigin), transform.inv.mul(rayDirection), minDist);
 		if (intersection == null) return null;
 		intersection.pos = transform.unapplyTo(intersection.pos);
 		intersection.normal = transform.rot.mul(intersection.normal);
@@ -36,6 +36,6 @@ public abstract class PhysicalObject {
 	 * doesn't gaurentee its closer than minDist, but passing a correct value can speed up the method for certain implementations
 	 * @return null if no hit occured, some Intersection otherwise
 	 */
-	protected abstract Intersection getLocalIntersection(Vec3 rayOrigin, Vec3 rayDirection, float minDist);
+	protected abstract Intersection getIntersectionLocal(Vec3 rayOrigin, Vec3 rayDirection, float minDist);
 	public abstract void renderRasterized(WritableRaster raster, float[][] zBuffer, Viewport camera);
 }

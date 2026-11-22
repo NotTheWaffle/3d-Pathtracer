@@ -32,7 +32,7 @@ public class TriangleMesh extends PhysicalObject{
 	}
 	@Deprecated
 	@Override
-	public Intersection getLocalIntersection(Vec3 origin, Vec3 direction, float minDist){
+	public Intersection getIntersectionLocal(Vec3 origin, Vec3 direction, float minDist){
 		Intersection intersection = bvh.getDeficientIntersection(origin, direction, minDist);
 		if (intersection == null) return null;
 		intersection.material = this.material;

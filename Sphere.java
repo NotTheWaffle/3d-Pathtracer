@@ -17,7 +17,7 @@ public class Sphere extends PhysicalObject{
 		this.radius = radius;
 	}
 	/**
-	 * Very innaccurate rasterization
+	 * Very innaccurate rasterization but its cheap and good enough
 	 */
 	@Override
 	public void renderRasterized(WritableRaster raster, float[][] zBuffer, Viewport camera) {
@@ -58,7 +58,7 @@ public class Sphere extends PhysicalObject{
 
 
 	@Override
-	public Intersection getLocalIntersection(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
+	public Intersection getIntersectionLocal(Vec3 rayOrigin, Vec3 rayDirection, float minDist){
 		Vec3 l = rayOrigin;
 
 		float b = 2 * rayDirection.dot(l);

@@ -17,6 +17,7 @@ public class Material {
 	public final float refractiveIndex;
 	public final float absorption;
 
+	// used only for portals
 	public final boolean magic;
 
 	/** A white material that emits no light. Fully diffuse reflections.*/
